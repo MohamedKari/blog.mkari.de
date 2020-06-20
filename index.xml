@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title></title>
+    <link>http://blog.mkari.de/</link>
+    <description>Recent content on </description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; Mohamed Kari&amp;nbsp;•&amp;nbsp;2020</copyright>
+    <lastBuildDate>Sat, 20 Jun 2020 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="http://blog.mkari.de/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Out-of-the-box Storage Infrastructure Alternatives for Scaled Machine Learning</title>
+      <link>http://blog.mkari.de/posts/storage/</link>
+      <pubDate>Sat, 20 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.mkari.de/posts/storage/</guid>
+      <description>The problem of storing large volumes of unstructured datasets Data preprocessing is a vital part of machine learning workflow. However, the story starts even earlier. Even before versioning or labelling data, we have to store the data we want learn from. This quickly becomes a non-trivial task in deep-learning problems where we often operate on non-textual data such as images resulting in terabyte-scale dataset sizes such as the Waymo dataset for example.</description>
+    </item>
+    
+  </channel>
+</rss>
