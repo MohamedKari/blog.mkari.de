@@ -1,0 +1,13 @@
+baseURL = "http://blog.mkari.de/"
+languageCode = "en-us"
+theme = "pickles"
+copyright = "&copy; Mohamed Kari&nbsp;•&nbsp;2020"
+
+[params]
+  github = "MohamedKari"
+  linkedin = "mohamedkari"
+  authorwebsite = "https://mkari.de/"
+  author = "Mohamed Kari"
+  avatar = "https://media-exp1.licdn.com/dms/image/C5603AQEPRvsHav_Zsg/profile-displayphoto-shrink_200_200/0?e=1597881600&v=beta&t=KduiZebn4QFTLvJwEMgbS70KNXDaRALJHAAhcDcTCLw"
+  bio = "PhD Student in Machine Learning at Porsche and at University of Duisburg-Essen"
+  contact = "mailto:mo@mkari.de"
