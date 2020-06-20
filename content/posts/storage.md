@@ -1,12 +1,12 @@
 ---
 title: "Out-of-the-box Storage Infrastructure Alternatives for Scaled Machine Learning"
-date: 2020-06-18T23:52:00+02:00
-draft: True
+date: 2020-06-20
+draft: false
 author: Mo Kari
 ---
 
 # The problem of storing large volumes of unstructured datasets
-As we all know, data preprocessing is a vital part of machine learning workflow. However, the story starts even earlier. Even before versioning or labelling data, we have to store the data we want learn from. This quickly becomes a non-trivial task in deep learning problems where we often operate on non-textual data such as images resulting in terabyte-scale dataset sizes as in the [Waymo dataset](https://waymo.com/open/about/) for example. Datasets of these sizes are generally not suitable for any laptop or your internet connection. And chances are that with a dataset like this, you also plan on training your model versions across a good number of GPUs provided by some cloud vendor. The question then arises on which cloud technology to use to store your data on and how to ingest it.
+Data preprocessing is a vital part of machine learning workflow. However, the story starts even earlier. Even before versioning or labelling data, we have to store the data we want learn from. This quickly becomes a non-trivial task in deep-learning problems where we often operate on non-textual data such as images resulting in terabyte-scale dataset sizes such as the [Waymo dataset](https://waymo.com/open/about/) for example. Datasets of these sizes are generally not suitable for any laptop or your internet connection. And chances are that with a dataset like this, you also plan on training your model versions across a good number of GPUs provided by some cloud vendor. The question then arises on which cloud technology to use to store your data on and how to ingest it.
 
 This post assumes that the relevant data comes in the form of files (such as tar, zip, jpg, parquet, hdf5, tfrecord, txt, ...) as opposed to tables, streams, APIs, etc. For the sake a concrete picture, technologies are exemplified by AWS products even though the other hyperscalers provide mostly equivalent counterparts. Data versioning and access through a feature store is left for a later post.
 
@@ -97,4 +97,4 @@ However, if you are thinking through these things, chances are you are doing mor
 [^databricks_horovod]: https://docs.databricks.com/applications/deep-learning/distributed-training/horovod-runner.html#horovodrunner
 [^efs]: https://docs.aws.amazon.com/efs/latest/ug/performance.html 
 [^tf_data]: https://www.tensorflow.org/guide/data_performance#parallelizing_data_extraction
-[^mezz_fs]: Thanks to [Tobias Grosse-Puppendahl](http://www.grosse-puppendahl.com/) for the tip.
+[^mezzfs]: Thanks to [Tobias Grosse-Puppendahl](http://www.grosse-puppendahl.com/) for the tip.
