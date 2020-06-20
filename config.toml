@@ -1,4 +1,4 @@
-baseURL = "http://blog.mkari.de/"
+baseURL = "https://mohamedkari.github.io/blog.mkari.de/"
 languageCode = "en-us"
 theme = "pickles"
 copyright = "&copy; Mohamed Kari&nbsp;•&nbsp;2020"
