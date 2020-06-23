@@ -3,6 +3,9 @@ languageCode = "en-us"
 theme = "pickles"
 copyright = "&copy; Mohamed Kari&nbsp;•&nbsp;All rights reserved.•&nbsp;2020"
 
+[markup.goldmark.renderer]
+unsafe= true
+
 [params]
   github = "MohamedKari"
   linkedin = "mohamedkari"
