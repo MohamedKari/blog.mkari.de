@@ -1,7 +1,7 @@
 ---
 title: "Remote Docker Hosts in the Cloud for Machine Learning Workflows"
 date: 2020-06-22
-draft: true
+draft: false
 author: Mo Kari
 ---
 
