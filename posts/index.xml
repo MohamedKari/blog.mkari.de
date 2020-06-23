@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>&amp;copy; Mohamed Kari&amp;nbsp;•&amp;nbsp;All rights reserved.•&amp;nbsp;2020</copyright>
-    <lastBuildDate>Sat, 20 Jun 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 22 Jun 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://mohamedkari.github.io/blog.mkari.de/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Remote Docker Hosts in the Cloud for Machine Learning Workflows</title>
+      <link>https://mohamedkari.github.io/blog.mkari.de/posts/remote-docker-for-ml/</link>
+      <pubDate>Mon, 22 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://mohamedkari.github.io/blog.mkari.de/posts/remote-docker-for-ml/</guid>
+      <description>The problem of developing ML models on a MacBook In a recent blog post, I have argued why I think it is a good idea to develop ML models inside Docker containers. In short: reproducability. However, if you don&amp;rsquo;t have access to a CUDA-enabled GPU, developing or even only replicating state-of-the-art deep-learning research can be close to impossible, Docker or not. All ML researchers and engineers working on a MacBook have probably been exposed to this complication.</description>
+    </item>
     
     <item>
       <title>Out-of-the-box Storage Infrastructure Alternatives for Scaled Machine Learning</title>
