@@ -30,5 +30,26 @@
       <description>The problem of storing large volumes of unstructured datasets Data preprocessing is a vital part of machine learning workflows. However, the story starts even earlier. Even before versioning or labelling data, we have to store the data we want learn from. This quickly becomes a non-trivial task in deep-learning problems where we often operate on non-tabular data such as images resulting in terabyte-scale dataset sizes such as the Waymo dataset for example.</description>
     </item>
     
+    <item>
+      <title></title>
+      <link>https://mohamedkari.github.io/blog.mkari.de/posts/drafts/efficient-python/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://mohamedkari.github.io/blog.mkari.de/posts/drafts/efficient-python/</guid>
+      <description>https://eli.thegreenplace.net/2011/11/28/less-copies-in-python-with-the-buffer-protocol-and-memoryviews
+from PIL import Image image = Image.read(&amp;ldquo;img.jpg&amp;rdquo;) numpy.asarray(image)
+vs
+numpy.array(image)</description>
+    </item>
+    
+    <item>
+      <title></title>
+      <link>https://mohamedkari.github.io/blog.mkari.de/posts/drafts/versioning_as_a_first_class_citizen/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://mohamedkari.github.io/blog.mkari.de/posts/drafts/versioning_as_a_first_class_citizen/</guid>
+      <description></description>
+    </item>
+    
   </channel>
 </rss>
