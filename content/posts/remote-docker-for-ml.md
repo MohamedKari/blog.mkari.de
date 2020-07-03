@@ -120,7 +120,13 @@ Alternatively, for `docker` CLI commands (such as `docker run` or `docker image 
 Having the `DOCKER_HOST`, `DOCKER_TLS_VERIFY`, and the `DOCKER_CERT_PATH` env vars set, we can now simply run `docker` and `docker-compose` commands which are executed on the remote host instead of on the local computer. From a user perspective, there's is no change in the experience: Whether one is building and running on machine-local Docker daemon using the CLI, or whether one is building and running on a remote Docker dameon using the CLI, doesn't make difference. With two exceptions: latency and file system mounts.
 
 ## Latency
-Because you have to send the build context over the wire, you'll probably notice a longer delay between entering the _build_ command and seeing the first layer being built or reused. However, if one is using `.dockerignore` properly and following good practices of separating code and data, it shouldn't be a problem to keep the build context small. However a positive change in latency is that you'll probably notice a significant speed-up when pulling and pushing images from and to the image registries; at least for me, my home-internet connection is slower than the internet connection of a high-bandwidth EC2 instance. 
+Because you have to send the build context over the wire, you'll probably notice a longer delay between entering the _build_ command and seeing the first layer being built or reused. However, if one is using `.dockerignore` properly, makes effective use of caching and is following good practices of separating code and data, it shouldn't be a problem to keep the build context small. To speed up the image build process, it is also useful to consider using Docker [BuildKit](https://docs.docker.com/develop/develop-images/build_enhancements/) instead of Docker's default build system. To enable BuildKit, export `DOCKER_BUILDKIT=1` to the environment. `docker-compose` does not support BuildKit natively, but we can also export `COMPOSE_DOCKER_CLI_BUILD=1` so that `docker-compose` simply acts as a wrapper around the Docker CLI[^buildkit-with-compose], resulting in a command such as
+
+```sh
+DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose up --build
+```
+
+A positive change in latency is that you'll probably notice a significant speed-up when pulling and pushing images from and to the image registries; at least for me, my home-internet connection is slower than the internet connection of a high-bandwidth EC2 instance.
 
 ## File System
 Unfortunately, there is one thing that breaks the ephemeral character of containers in this setup, and it is going to cause us a bit of an inveterate headache. 
@@ -204,3 +210,5 @@ to sync files from the local folder exchange/data to the remote folder, if and o
 This post has given some guidance on how to setup a EC2 instance approriate for deep learning using `docker-machine`, and how my workflow looks like using it. 
 
 To learn more about useful Dockerfile and Compose file templates for GPU-enabled ML containers take a look at [my post on reproducible ML research](reproducible-ml-with-docker).
+
+[^buildkit-with-compose]: [https://github.com/docker/compose/issues/6440#issuecomment-547036343](https://github.com/docker/compose/issues/6440#issuecomment-547036343)
