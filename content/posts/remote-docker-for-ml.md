@@ -209,6 +209,6 @@ to sync files from the local folder exchange/data to the remote folder, if and o
 # Conclusion
 This post has given some guidance on how to setup an EC2 instance appropriate for deep learning using `docker-machine`, and how my workflow looks like using it. 
 
-To learn more about useful Dockerfile and Compose file templates for GPU-enabled ML containers take a look at [my post on reproducible ML research](/posts/reproducible-ml-using-docker).
+To learn more about useful Dockerfile and Compose file templates for GPU-enabled ML containers take a look at [my post on reproducible ML research](/posts/reproducible-ml-models-using-docker).
 
 [^buildkit-with-compose]: [https://github.com/docker/compose/issues/6440#issuecomment-592939294](https://github.com/docker/compose/issues/6440#issuecomment-592939294)
