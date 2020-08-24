@@ -1,0 +1,31 @@
+{
+    "grammarly.userWords": [
+        "Realtery",
+        "conda",
+        "docker",
+        "docker-machine's",
+        "doi",
+        "entrypoint",
+        "gencode",
+        "gpus",
+        "grpcio",
+        "i",
+        "iam",
+        "imread",
+        "inpaints",
+        "neglectably",
+        "nvcc",
+        "nvidia",
+        "pipenv",
+        "productionization",
+        "productionized",
+        "repos",
+        "rsync",
+        "runc",
+        "scp",
+        "sudo",
+        "systemctl",
+        "tcp",
+        "tfrecord"
+    ]
+}

@@ -6,22 +6,22 @@ author: Mo Kari
 ---
 
 # The problem of developing ML models on a MacBook
-In a recent blog post, I have argued why I think it is a good idea to develop ML models inside Docker containers. In short: reproducability. However, if you don't have access to a CUDA-enabled GPU, developing or even only replicating state-of-the-art deep-learning research can be close to impossible, Docker or not. All ML researchers and engineers working on a MacBook have probably been exposed to this complication.
+In a recent blog post, I have argued why I think it is a good idea to develop ML models inside Docker containers. In short: reproducibility. However, if you don't have access to a CUDA-enabled GPU, developing or even only replicating state-of-the-art deep-learning research can be close to impossible, Docker or not. All ML researchers and engineers working on a MacBook have probably been exposed to this complication.
 
 # Using cloud VMs with GPUs
 ## Overview
 Luckily, in times of compute clouds, getting access to a GPU, or even a machine with multiple GPUs or even 100 nodes with 8 GPUs each, is easy (as long as your budget is sufficient). For example, NVIDIA's Tesla T4 GPU - as of writing this post one of NVIDIA's latest GPU architectures - is available in AWS' _g4dn.xlarge_ instance for an on-demand price of about 0.50 €/h.
 
-If you are indeed implementing your deep-learning models with a _"Docker-first approach"_, the cool thing is that you don't care where your containers get executed (as long as a GPU is available from inside the container and maybe as long as your file system mounts make sense; more on the file system later). And we can exploit this to use the beauty of Docker, allowing us to run any `docker-compose` or `docker` CLI command on a remote docker host without modifying it, but simply by adding an `.env` file resp. setting some environment variables, thus creating a seamless usage experience. 
+If you are indeed implementing your deep-learning models with a _"Docker-first approach"_, the cool thing is that you don't care where your containers get executed (as long as a GPU is available from inside the container and maybe as long as your file system mounts make sense; more on the file system later). And we can exploit this to use the beauty of Docker, allowing us to run any `docker-compose` or `docker` CLI command on a remote docker host without modifying it, but simply by adding a `.env` file resp. setting some environment variables, thus creating a seamless usage experience. 
 
 I will use AWS EC2 as an example, even though GCP and Azure have comparable offerings and it seems that some ML-specific cloud vendors such as [Paperspace also support custom containers](https://docs.paperspace.com/gradient/notebooks/notebook-containers/building-a-custom-container). Azure seems to be a worse deal than AWS considering that you only get a Tesla K80 for the same price (as of writing this with a promoted NC6 instance). However, it has to be noted that AWS's _p2.xlarge_ comprising a single K80 is also a very bad bargain, considering it costs twice as much as the _g4dn.xlarge_ for a GPU half as fast. GCP might be especially interesting due to their TPU offerings, though I haven't tried it out yet for this purpose.
 
-I'm also assuming a unix-like local OS.
+I'm also assuming a Unix-like local OS.
 
 ## Creating an EC2 instance
-To create an EC2 instance and the related items of the tech stack (such as IAM and networking), we could use the AWS console, the AWS CLI, the AWS CLI with CloudFormation, a Terraform template, ... - or we coud use `docker-machine`. `docker-machine` is a tool also by the Docker developers that allows managing remote Docker hosts.
+To create an EC2 instance and the related items of the tech stack (such as IAM and networking), we could use the AWS console, the AWS CLI, the AWS CLI with CloudFormation, a Terraform template, ... - or we could use `docker-machine`. `docker-machine` is a tool also by the Docker developers that allows managing remote Docker hosts.
 
-On MacOS, docker-machine can be installed with brew 😍: `brew install docker-machine`.
+On macOS, docker-machine can be installed with brew 😍: `brew install docker-machine`.
 
 Assuming you have your [AWS credentials](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html) in the `~/.aws/` folder or in the standard AWS environment variables, we can create a new EC2 instance in the account's default VPC network using: 
 
@@ -43,7 +43,7 @@ As can be seen in the last line of the CLI snippet, the EC2 instance will be nam
 
 Under the hoods, the above command will not only create the EC2 instance and the EBS volume, but also create
 - a new key pair and deploy your public key onto the instance, 
-- a security group with allow rules for SSH on default port 22, and for TLS-encrpyted Docker on default port 2376.
+- a security group with allow rules for SSH on default port 22, and for TLS-encrypted Docker on default port 2376.
 
 Refer to the [official docs for docker-machine's AWS driver](https://docs.docker.com/machine/drivers/aws/) to check out further parameters, e. g. in order to 
 - avoid creating a new key pair and instead deploying an existing public key using `--amazonec2-ssh-keypath`,
@@ -88,7 +88,7 @@ Therefore, every time after starting the VM again using `docker-machine start do
 To avoid this, you could now create an AWS Elastic IP (one could also call it static IP) and assign it to the VM, so to ensure the public IP of the EC2 instance is fix. The Elastic IP costs 1 cent for each hour it is not attached to an active VM. After attaching it, the certificates must be regenerated to be re-issued for the new Elastic IP.
 
 ### AWS Credentials
-If you are using temporary session credentials obtained from an IAM role assumption as I am doing, you will notice that after the credentials used to create the docker-machine expire, `docker-machine` will throw a 400 error with the info, "RequestExpired: Request has expired". Unfortunately, `docker-machine` has stored the inital credentials in the `~/.docker/machine/machines/docker-ml/config.json` and they take precedence over any AWS credentials set in the environment. However, there is an easy fix: edit the `config.json` and remove the lines, containing the Access Key ID, the Secret Access Key, and Session Token. From now on, commands issued to `docker-machine` will ressort to the environment variables. 
+If you are using temporary session credentials obtained from an IAM role assumption as I am doing, you will notice that after the credentials used to create the docker-machine expire, `docker-machine` will throw a 400 error with the info, "RequestExpired: Request has expired". Unfortunately, `docker-machine` has stored the initial credentials in the `~/.docker/machine/machines/docker-ml/config.json` and they take precedence over any AWS credentials set in the environment. However, there is an easy fix: edit the `config.json` and remove the lines, containing the Access Key ID, the Secret Access Key, and Session Token. From now on, commands issued to `docker-machine` will resort to the environment variables. 
 
 ### <a name="ssh_config"></a> Back to the roots: from docker-machine to plain vanilla SSH
 Apart from the `docker-machine ssh`, there is also the `docker-machine scp` subcommand to allow file transfers between the remote machine and local machine. However, should you prefer using plain-vanilla `ssh` and `scp` or should you also want to use `rsync`, you could append the following snippet to your `~/.ssh/config` file. 
@@ -103,7 +103,7 @@ Host ${MACHINE_NAME}
 
 Afterwards, SSH-ing into the instance is as easy as `ssh ${MACHINE_NAME}`.
 
-As you can see, up to now we actually haven't been relying on Docker or containers itself, but only on the ease of using `docker-machine` to setup a cloud VM. For those people, blatantly ignoring my pleading to use Docker to implement ML models, you guys could stop here, and for example use Visual Studio Code's [Remote extension](https://code.visualstudio.com/docs/remote/ssh) to conventiently work on the cloud VM using SSH. Having set-up the .ssh/config file, will make the EC2 instance available in the VS Code Remote extension.
+As you can see, up to now we actually haven't been relying on Docker or containers itself, but only on the ease of using `docker-machine` to setup a cloud VM. For those people, blatantly ignoring my pleading to use Docker to implement ML models, you guys could stop here, and for example use Visual Studio Code's [Remote extension](https://code.visualstudio.com/docs/remote/ssh) to conveniently work on the cloud VM using SSH. Having set-up the .ssh/config file, will make the EC2 instance available in the VS Code Remote extension.
 
 But I hope after reading my [post](reproducing-ml-models-using-docker.md) on the advantages of using Docker in an ML workflow, you'll come to the conclusion, that you actually want to proceed to using the EC2 instance as a remote Docker host. Actually, the hardest part is done. The rest is a piece of cake.
 
@@ -115,9 +115,9 @@ So how can we run these commands locally, but have them executed on the remote m
 
 Instead of exporting this environment variables by hand, `docker-machine` has us covered again. Running `docker-machine env docker-ml` will produce a source-able shell snippet to export the relevant env vars. As kindly indicated by `docker-machine` when running the command, we can simply use `eval $(docker-machine env docker-ml)` to export the env vars in one go.
 
-Alternatively, for `docker` CLI commands (such as `docker run` or `docker image ls`), we also could also pass the remote Docker host endpoint, using the `-H` arg, enable TLS using args, etc., instead of using the env var approach, which however is obviously less convenient when using the Docker CLI interactively. For `docker-compose`, there is a second good alternative, which is locating a `.env` file in the current directory. Then however, it makes most sense, to setup an Elastic IP beforehand, so that you don't have to edit `.env` after rebooting the EC2 instance. 
+Alternatively, for `docker` CLI commands (such as `docker run` or `docker image ls`), we also could also pass the remote Docker host endpoint, using the `-H` arg, enable TLS using args, etc., instead of using the env var approach, which however is obviously less convenient when using the Docker CLI interactively. For `docker-compose`, there is a second good alternative, which is locating a `.env` file in the current directory. Then however, it makes the most sense, to setup an Elastic IP beforehand, so that you don't have to edit `.env` after rebooting the EC2 instance. 
 
-Having the `DOCKER_HOST`, `DOCKER_TLS_VERIFY`, and the `DOCKER_CERT_PATH` env vars set, we can now simply run `docker` and `docker-compose` commands which are executed on the remote host instead of on the local computer. From a user perspective, there's is no change in the experience: Whether one is building and running on machine-local Docker daemon using the CLI, or whether one is building and running on a remote Docker dameon using the CLI, doesn't make difference. With two exceptions: latency and file system mounts.
+Having the `DOCKER_HOST`, `DOCKER_TLS_VERIFY`, and the `DOCKER_CERT_PATH` env vars set, we can now simply run `docker` and `docker-compose` commands which are executed on the remote host instead of on the local computer. From a user perspective, there's is no change in the experience: Whether one is building and running on a machine-local Docker daemon using the CLI, or whether one is building and running on a remote Docker daemon using the CLI, doesn't make difference. With two exceptions: latency and file system mounts.
 
 ## Latency
 Because you have to send the build context over the wire, you'll probably notice a longer delay between entering the _build_ command and seeing the first layer being built or reused. However, if one is using `.dockerignore` properly, makes effective use of caching and is following good practices of separating code and data, it shouldn't be a problem to keep the build context small. To speed up the image build process, it is also useful to consider using Docker [BuildKit](https://docs.docker.com/develop/develop-images/build_enhancements/) instead of Docker's default build system. Instead of always completely transferring the build context, BuildKit will determine cache invalidation per layer on the client machine, thus reducing the number of bytes to be sent over the wire dramatically, esp. if you have large "static" files (e. g. model weights, that you want to embed directly). To enable BuildKit, export `DOCKER_BUILDKIT=1` to the environment. `docker-compose` does not support BuildKit natively, but we can also export `COMPOSE_DOCKER_CLI_BUILD=1` so that `docker-compose` simply acts as a wrapper around the Docker CLI[^buildkit-with-compose], resulting in a command such as
@@ -135,11 +135,11 @@ Somehow, we have to
 - get data into the running container, and
 - get data out of the running container, probably after it has finished.
 
-Docker offers the possibility to mount directories from the _Docker host_'s files sytem into container - only from the _Docker host_'s file system into the container. And this is were my claim of a seamless experience starts to crumble a bit. In the client-server setup I have been describing throughout this post, there is a Docker client - e. g. your laptop - and a _Docker host_ running the Docker daemon to actually build and run the container. When running a container, we can only mount a directory from the _Docker host's_ file system, not from the Docker client. However, you would probably rather mount a directory from the Docker client's file system - e. g. from your laptop - where you are also running your IDE and your source control, etc. But this is not possible. 
+Docker offers the possibility to mount directories from the _Docker host_'s files system into the container - only from the _Docker host_'s file system into the container. And this is were my claim of a seamless experience starts to crumble a bit. In the client-server setup I have been describing throughout this post, there is a Docker client - e. g. your laptop - and a _Docker host_ running the Docker daemon to actually build and run the container. When running a container, we can only mount a directory from the _Docker host's_ file system, not from the Docker client. However, you would probably rather mount a directory from the Docker client's file system - e. g. from your laptop - where you are also running your IDE and your source control, etc. But this is not possible. 
 
 There are different approaches to cope with that. Depending on your dataset size and other factors, maybe you have all your data in an object store such as S3 anyway. If you're building the ML model and its container from scratch, then it might be a good idea to simply not bank on a persistent file system but stream all data from the object store once you need it. Refer to [my post on storage](storage) for a more holistic view on storage for ML and to learn more about streaming data into a container from an object store.
 
-However, sometimes we will not want to meet this ambition of a fully ephemeral container without file system mounts, because we don't want to create an S3 bucket, an IAM policy and role, provision the credentials so that the container can ... - yeah, you get the point. _Not using_ a file system mount can be extra effort. At other times, it might not be at our discretion of whether to use a local folder, or stream from and to an object store, but will have to live with what is given. E. g., when you are replicating ML research using code published along with their papers, authors will generally assume that training or test data is in some folder in the repo. 
+However, sometimes we will not want to meet this ambition of a fully ephemeral container without file system mounts, because we don't want to create an S3 bucket, an IAM policy and role, provision the credentials so that the container can ... - yeah, you get the point. _Not using_ a file system mount can be an extra effort. At other times, it might not be at our discretion of whether to use a local folder, or stream from and to an object store, but will have to live with what is given. E. g., when you are replicating ML research using code published along with their papers, authors will generally assume that training or test data is in some folder in the repo. 
 
 To define a Docker file system mount, we can use `docker-compose` (instead of having to pass the paths through the Docker CLI). For example, a simple `docker-compose.yml` look like this:
 ```yaml
@@ -166,7 +166,7 @@ The `docker-compose.yml` describes the parameters to run and build the container
 
 First, since we have cannot indicate relative paths in a volume definition in the `docker-compose.yml` file, it is machine-specific. If you want to run the same container on your local machine, modify the `docker-compose.yml` file with the corresponding volumes section accordingly, or use a `docker-compose.override.yml`. 
 
-Second, if mounting the remote file system into the container executed on the remote host, you probably will have to find a mechanism to also exchange data between your local machine and the remote machine. Two approaches come to mind. One approach is to use a an SSHFS mount. And yes, of course, `docker-machine` once again helps us out here and supports this out-of-the-box. E. g.:
+Second, if mounting the remote file system into the container executed on the remote host, you probably will have to find a mechanism to also exchange data between your local machine and the remote machine. Two approaches come to mind. One approach is to use an SSHFS mount. And yes, of course, `docker-machine` once again helps us out here and supports this out-of-the-box. E. g.:
 
 ```sh
 # create a mount point with an arbitrary name, e. g. mnt
@@ -195,7 +195,7 @@ To get this straight: we're talking about two different mounts here:
 - First, mounting the remote file system into your local file system 
 - Second, mounting the remote file system into the container executed on the remote host
 
-If you prefer creating an actual copies, `rsync` is a good match. 
+If you prefer creating actual copies, `rsync` is a good match. 
 
 Assuming you have setup the [SSH config](#ssh_config), you can simply run 
 ```sh
@@ -207,8 +207,8 @@ to sync files from the local folder exchange/data to the remote folder, if and o
 
 
 # Conclusion
-This post has given some guidance on how to setup a EC2 instance approriate for deep learning using `docker-machine`, and how my workflow looks like using it. 
+This post has given some guidance on how to setup an EC2 instance appropriate for deep learning using `docker-machine`, and how my workflow looks like using it. 
 
-To learn more about useful Dockerfile and Compose file templates for GPU-enabled ML containers take a look at [my post on reproducible ML research](reproducible-ml-with-docker).
+To learn more about useful Dockerfile and Compose file templates for GPU-enabled ML containers take a look at [my post on reproducible ML research](/posts/reproducible-ml-using-docker).
 
 [^buildkit-with-compose]: [https://github.com/docker/compose/issues/6440#issuecomment-592939294](https://github.com/docker/compose/issues/6440#issuecomment-592939294)
