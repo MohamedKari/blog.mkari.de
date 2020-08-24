@@ -18,7 +18,7 @@
       <pubDate>Sun, 05 Jul 2020 00:00:00 +0000</pubDate>
       
       <guid>https://mohamedkari.github.io/blog.mkari.de/posts/reproducible-ml-models-using-docker/</guid>
-      <description>Reproducing ML models can be a pain. And this is not even talking about managing model reproducability with different datasets, features, hyperparameters, architectures, setups, non-deterministic optimization or about model reproducability in a production-ready setup with constantly evolving input data. No, what I am talking about is getting a model which was developed and published by a different researcher to run on your own machine. Sometimes, or more like most times, this can be a nerve-wrecking endeavor.</description>
+      <description>Reproducing ML models can be a pain. And this is not even talking about managing model reproducibility with different datasets, features, hyperparameters, architectures, setups, non-deterministic optimization or about model reproducibility in a production-ready setup with constantly evolving input data. No, what I am talking about is getting a model which was developed and published by a different researcher to run on your own machine. Sometimes, or more like most times, this can be a nerve-wrecking endeavor.</description>
     </item>
     
     <item>
@@ -27,7 +27,7 @@
       <pubDate>Mon, 22 Jun 2020 00:00:00 +0000</pubDate>
       
       <guid>https://mohamedkari.github.io/blog.mkari.de/posts/remote-docker-for-ml/</guid>
-      <description>The problem of developing ML models on a MacBook In a recent blog post, I have argued why I think it is a good idea to develop ML models inside Docker containers. In short: reproducability. However, if you don&amp;rsquo;t have access to a CUDA-enabled GPU, developing or even only replicating state-of-the-art deep-learning research can be close to impossible, Docker or not. All ML researchers and engineers working on a MacBook have probably been exposed to this complication.</description>
+      <description>The problem of developing ML models on a MacBook In a recent blog post, I have argued why I think it is a good idea to develop ML models inside Docker containers. In short: reproducibility. However, if you don&amp;rsquo;t have access to a CUDA-enabled GPU, developing or even only replicating state-of-the-art deep-learning research can be close to impossible, Docker or not. All ML researchers and engineers working on a MacBook have probably been exposed to this complication.</description>
     </item>
     
     <item>
@@ -37,6 +37,24 @@
       
       <guid>https://mohamedkari.github.io/blog.mkari.de/posts/storage/</guid>
       <description>The problem of storing large volumes of unstructured datasets Data preprocessing is a vital part of machine learning workflows. However, the story starts even earlier. Even before versioning or labelling data, we have to store the data we want learn from. This quickly becomes a non-trivial task in deep-learning problems where we often operate on non-tabular data such as images resulting in terabyte-scale dataset sizes such as the Waymo dataset for example.</description>
+    </item>
+    
+    <item>
+      <title></title>
+      <link>https://mohamedkari.github.io/blog.mkari.de/posts/drafts/sunk-cost/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://mohamedkari.github.io/blog.mkari.de/posts/drafts/sunk-cost/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title></title>
+      <link>https://mohamedkari.github.io/blog.mkari.de/posts/drafts/the-analogy-of-designing-software-and-designing-org-structures/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://mohamedkari.github.io/blog.mkari.de/posts/drafts/the-analogy-of-designing-software-and-designing-org-structures/</guid>
+      <description>where it holds and where it fails</description>
     </item>
     
   </channel>
