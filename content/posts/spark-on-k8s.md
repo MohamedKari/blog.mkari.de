@@ -1,11 +1,15 @@
 ---
 title: "Native Spark on Kubernetes"
 date: 2020-10-06
-draft: True
+draft: False
 author: Mo Kari
 ---
 
-_In this post, the different deployment alternatives of Spark on Kubernetes are evaluated. From this, I'll outline the workflow for building and running Spark Applications as well as Spark Cluster-backed Jupyter Notebooks, both running PySpark in custom containers. Workloads use AWS S3 as the data source and sink and are observable using the Spark history server._ 
+_In this post, the different deployment alternatives of Spark on Kubernetes are evaluated._
+_From this, I'll outline the workflow for building and running Spark Applications as well as Spark Cluster-backed Jupyter Notebooks, both running PySpark in custom containers._ 
+_It is shown how to include conda-managed Python dependencies in the image._
+_Also, it is described how to deploy a notebook server running in Spark's client mode to the Kubernetes cluster._
+_Workloads use AWS S3 as the data source and sink and are observable using the Spark history server._ 
 
 # Table of Contents
 
@@ -44,9 +48,21 @@ My environment is the following:
 - Helm v3.3.4 (`brew install helm`)
 - Minikube is serving Kubernetes v1.19.2 (`minikube --memory 8192 --cpus 4 start && kubectl version`)
 - conda 4.8.3 (`brew cask install anaconda`)
-- awscli 2.0.34 (`brew install awscli`)
+- awscli 2.0.34 (`brew install awscli`) 
 
-Further, I have created image repos on Docker hub at [mokari94/spark-base](https://hub.docker.com/repository/docker/mokari94/spark-base) and [mokari94/spark-app](https://hub.docker.com/repository/docker/mokari94/spark-app) and am logged in to the registry (`docker login`).
+Further, I have created image repos on Docker hub at [mokari94/spark-base](https://hub.docker.com/repository/docker/mokari94/spark-base) and [mokari94/spark-app](https://hub.docker.com/repository/docker/mokari94/spark-app) and am logged in to the registry (`docker login`). My AWS IAM role is allowed all actions on an S3 bucket and all objects inside: 
+
+```json
+{
+  "Effect": "Allow", 
+  "Action": "s3:*", 
+  "Resource": [ 
+    "arn:aws:s3:::spark-mo", 
+    "arn:aws:s3:::spark-mo/*"
+  ]
+}
+```
+()
 
 # Spark Terminology
 
