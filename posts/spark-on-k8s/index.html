@@ -140,7 +140,7 @@
 }
 </code></pre></div><p>()</p>
 <h1 id="spark-terminology">Spark Terminology</h1>
-<p>A central notion of a Spark application, maybe interactive or a defined job, is the <em>driver process</em>.
+<p>A central notion of a Spark application, may it be an interactive notebook, an end-to-end application, is the <em>driver process</em>.
 The driver process could run on the developer&rsquo;s machine when using a spark-shell or a locally started notebook, it could run on a gateway host at the edge of a cluster, on a node in the cluster itself, or on a notebook server in the cluster.
 We&rsquo;ll come back to where the driver process runs, in a bit.</p>
 <p>The <em>driver process</em> distributes a workload across a set of <em>executors</em>.
@@ -151,7 +151,7 @@ Upon startup, the submitting process will instruct the cluster manager to create
 <p>In the so-called <em>client mode</em>, the driver is identical to the submitting process, e. g. the developer machine or a gateway machine.
 In the so-called <em>cluster mode</em>, the driver program gets deployed to the cluster by the cluster manager first, and then is started co-located to the executors, thus improving latency and being independent of the submitting machine.</p>
 <p>The cluster manager will then start each executor and tell them the IP and port of the driver process.
-Of course, the cluster manager needs to know the hosts of the cluster and must be able to start processes on them, generally by using an agent running on the node (even tough, there it might also be possible that the cluster manager can scale out scale in the cluster itself by means of the cloud provider, as for example with <a href="https://github.com/kubernetes/autoscaler">Kubernetes Cluster Autoscaler</a>).
+Of course, the cluster manager needs to know the hosts of the cluster and must be able to start processes on them, generally by using an agent running on the node (even tough, there it might also be possible that the cluster manager can scale out the cluster itself by means of the cloud provider, as for example with <a href="https://github.com/kubernetes/autoscaler">Kubernetes Cluster Autoscaler</a>).
 Once all executors have reported back to the driver, the driver can distribute <em>tasks</em> among them, e. g. tasks for data transformation.
 Instead of sending the data through the driver over the network to the executors, the driver tells the executors where to find the data on a shared file system.
 This could be an object store such as S3, a distributed file system such as HDFS, or a mounted file system.
@@ -165,11 +165,11 @@ Spark applications are then submitted to the cluster through the Spark Master us
 <h1 id="spark-on-k8s-deployment-alternatives">Spark on K8s Deployment Alternatives</h1>
 <h2 id="native-spark-on-k8s">Native Spark on K8s</h2>
 <p>Since 2018, Spark has <a href="https://issues.apache.org/jira/browse/SPARK-18278">native support for Kubernetes</a>.
-For <em>Spark on K8s</em>, we assume that there is a Kubernetes cluster, serving the Kubernetes API at a given url.
+For <em>Spark on K8s</em>, we assume that there is a Kubernetes cluster, serving the Kubernetes API at a given URL.
 Spark applications are again submitted to the cluster using the <code>spark-submit</code> script, however this time indicating the <code>--master k8s://$K8S_API_URL</code> argument. Furthermore, one indicates <code>--conf spark.kubernetes.container.image</code> pointing to a pullable container image.
 Now, instead of asking a running Spark Master to launch executor processes on pre-registered machines,
 the local submission client, running in the local process invoked by <code>spark-submit</code>, will create a Kubernetes spec with as many pods as desired executors. The spec is sent to the  Kubernetes API and handled by the Kubernetes scheduler. The scheduler schedules the pods, each of them running a single container which runs the Spark executor.
-In Spark 3.0.1, Spark Standalone as well as Spark on K8s can run handle cluster mode and client mode (with the execption of PySpark jobs running in cluster mode on Spark Standalone clusters).
+In Spark 3.0.1, Spark Standalone as well as Spark on K8s can run handle cluster mode and client mode (with the exception of PySpark jobs running in cluster mode on Spark Standalone clusters).
 This setup allows to run <em>custom</em> Spark containers on Kubernetes without any prior setup, apart from some role stuff.</p>
 <h2 id="spark-operator-for-spark-on-k8s">Spark Operator for Spark on K8s</h2>
 <p>However, running <code>spark-submit</code> in an imperative manner is a bit inconsistent with the declarative <code>kubectl apply</code> paradigm.
@@ -186,7 +186,7 @@ Client-mode-like applications, e. g. the REPL, can still simply bypass the opera
 <p><img src="fig-spark-on-k8s-comparison.png" alt=""></p>
 <h1 id="the-spark-container-image">The Spark Container Image</h1>
 <h2 id="overview">Overview</h2>
-<p>One central advantage of using Spark on Kubernetes over Spark Standalone is that that each application can bring its container comprising all dependencies which then can integrate with the typical Kubernetes features (e. g. ConfigMaps for managing configs).</p>
+<p>One central advantage of using Spark on Kubernetes over Spark Standalone is that each application can bring its container comprising all dependencies which then can integrate with the typical Kubernetes features (e. g. ConfigMaps for managing configs).</p>
 <p>There are two alternatives when it comes the container image: Either building the image oneself, or using an already published image.</p>
 <p>As said above, the images corresponding to the Helm charts of bitnami/spark (<a href="https://hub.docker.com/r/bitnami/spark/,">https://hub.docker.com/r/bitnami/spark/,</a> <a href="https://github.com/bitnami/bitnami-docker-spark/blob/master/3/debian-10/Dockerfile">Dockerfile</a>) and stable/spark image (k8s.gcr.io/spark:1.5.1_v3) are meant for Spark Standalone on K8s deployments.
 However, the gcr.io/spark-operator/spark-py:v3.0.0 from the spark-operator image repo (<a href="https://console.cloud.google.com/gcr/images/spark-operator/GLOBAL">Registry Repo</a>, Dockerfile built using the official Spark <a href="https://github.com/apache/spark/blob/master/resource-managers/kubernetes/docker/src/main/dockerfiles/spark/Dockerfile">Dockerfile for Kubernetes</a>) is meant for K8s-native deployments. Even though it bears the name spark-operator in its tag, it is a bog-standard Spark image.
@@ -201,7 +201,7 @@ This means, that there most certainly will arise runtime errors when deploying i
 </ol>
 <p>Alternative 1 is highly dissatisfying and makes developing slow.
 Alternative 2 could probably work by running the spark-operator image in Docker.</p>
-<p>However, let&rsquo;s go with Alternative 3 so we don&rsquo;t make ourselves guilty of running obselete dependencies. In the following, we will build the image off of the local Spark installation which then gets deployed. Of course, for a stable CI/CDable production, this could also happen in a build runner.</p>
+<p>However, let&rsquo;s go with Alternative 3 so we don&rsquo;t make ourselves guilty of running obsolete dependencies. In the following, we will build the image off of the local Spark installation which then gets deployed. Of course, for a stable CI/CDable production, this could also happen in a build runner.</p>
 <h2 id="custom-spark-base-image-build">Custom Spark Base Image Build</h2>
 <p>So, let&rsquo;s build the PySpark image from scratch. Actually, not really from scratch, because we use the <a href="(https://github.com/apache/spark/blob/master/resource-managers/kubernetes/docker/src/main/dockerfiles/spark/Dockerfile)">Dockerfile for Kubernetes</a> maintained by the Spark community, and because we use the <a href="https://github.com/apache/spark/blob/master/bin/docker-image-tool.sh">Docker image tool</a> that comes along to create the build context from a local Spark distribution.</p>
 <p>This could be a dedicated Spark distribution, built from source using the
@@ -242,7 +242,7 @@ spark-submit <span style="color:#ae81ff">\
 <ul>
 <li>Use a custom Python App with custom dependencies (namely <code>numpy</code>)</li>
 <li>PySpark instead of Spark</li>
-<li>Read an injected S3 path from the an environment variable</li>
+<li>Read an injected S3 path from an environment variable</li>
 <li>Write the result to AWS S3 at the specified path and read it back it</li>
 </ul>
 <p>First, let&rsquo;s use the <code>pi.py</code> example as a starting point:</p>
@@ -363,7 +363,7 @@ spark<span style="color:#f92672">.</span>stop()
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">export REPO<span style="color:#f92672">=</span>mokari94
 docker build -t $REPO/spark-app:latest .
 docker push $REPO/spark-app:latest
-</code></pre></div><p>Alternatively, we could build the docker container <strong>on the virtualized Minikube node</strong> so that the Minikube Kubernetes will find the image using <code>eval $(minikube docker-env) &amp;&amp; docker build -t spark-app .</code>. Remember to run <code>eval $(minikube docker-env)</code> whenever you enter a fresh terminal window, if you want to update the Docker image. Also be careful, to set the imagePullPolicy in the next step correctly.</p>
+</code></pre></div><p>Alternatively, we could build the docker container <strong>on the virtualized Minikube node</strong> so that the Minikube Kubernetes will find the image using <code>eval $(minikube docker-env) &amp;&amp; docker build -t spark-app .</code>. Remember to run <code>eval $(minikube docker-env)</code> whenever you enter a fresh terminal window if you want to update the Docker image. Also be careful, to set the imagePullPolicy in the next step correctly.</p>
 <h1 id="running-custom-spark-applications-and-notebooks-on-k8s">Running Custom Spark Applications and Notebooks on K8s</h1>
 <h2 id="prerequisites">Prerequisites</h2>
 <p>So now, all we have done is building a custom Spark application image. However, before we can run it, we need to make sure</p>
@@ -388,7 +388,7 @@ rm dummy
 </span><span style="color:#ae81ff"></span>--conf spark.eventLog.dir<span style="color:#f92672">=</span>s3a://spark-mo/history-server/
 </code></pre></div><h3 id="secrets">Secrets</h3>
 <p>We populate the AWS credentials from a Kubernetes secret into the container using the <a href="https://spark.apache.org/docs/latest/running-on-kubernetes.html#secret-management">environment variables Spark feature</a>. In order to store the secrets as a Kubernetes secret, Put the <code>AWS_ACCESS_KEY_ID</code> into a file named <code>aws-access-key</code> and the <code>AWS_SECRET_KEY</code> into a file named <code>aws-secret-key</code>.
-Make sure that there is not trailing line break.</p>
+Make sure that there is no trailing line break.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">kubectl create secret generic aws-secrets --from-file<span style="color:#f92672">=</span>aws-access-key --from-file<span style="color:#f92672">=</span>aws-secret-key
 </code></pre></div><p>In the spark-submit call, we will indicate the secrets as follows:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">--conf spark.kubernetes.driver.secretKeyRef.AWS_ACCESS_KEY_ID<span style="color:#f92672">=</span>aws-secrets:aws-access-key <span style="color:#ae81ff">\
@@ -396,7 +396,7 @@ Make sure that there is not trailing line break.</p>
 </span><span style="color:#ae81ff"></span>--conf spark.kubernetes.executor.secretKeyRef.AWS_ACCESS_KEY_ID<span style="color:#f92672">=</span>aws-secrets:aws-access-key <span style="color:#ae81ff">\
 </span><span style="color:#ae81ff"></span>--conf spark.kubernetes.executor.secretKeyRef.AWS_SECRET_ACCESS_KEY<span style="color:#f92672">=</span>aws-secrets:aws-secret-key
 </code></pre></div><p>The above notation says to populate the <code>aws-access-key</code> value from the <code>aws-secrets</code> Kubernetes secret into an environment variable called <code>AWS_ACCESS_KEY_ID</code>. Should you rely on temporary role session tokens on the AWS side, this also could be <a href="https://hadoop.apache.org/docs/r3.2.0/hadoop-aws/tools/hadoop-aws/index.html#Using_Session_Credentials_with_TemporaryAWSCredentialsProvider">taken into account here</a>.</p>
-<p>However, for the Hadoop AWS and the AWS SDK to be able to access S3, we included in our Spark Base Image, to find be able to actually make requests to the AWS API, we need to indiated the region, your bucket was created. As the region I use, Frankfurt, only offers the newer v4 Authentication Signature (v2 is legacy, anyways). it is needed to set enable Signature v4 by extra java options for driver and executor. Otherwise, we&rsquo;ll get a very non-specific <em>Bad Request</em> error. Finally, we need to set the AWS credentials.</p>
+<p>However, for the Hadoop AWS and the AWS SDK to be able to access S3, we included in our Spark Base Image, to find be able to actually make requests to the AWS API, we need to indicated the region, your bucket was created. As the region I use, Frankfurt, only offers the newer v4 Authentication Signature (v2 is legacy, anyways). it is needed to set enable Signature v4 by extra java options for driver and executor. Otherwise, we&rsquo;ll get a very non-specific <em>Bad Request</em> error. Finally, we need to set the AWS credentials.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">--conf spark.hadoop.fs.s3a.endpoint<span style="color:#f92672">=</span>s3.eu-central-1.amazonaws.com <span style="color:#ae81ff">\
 </span><span style="color:#ae81ff"></span>--conf spark.executor.extraJavaOptions<span style="color:#f92672">=</span>-Dcom.amazonaws.services.s3.enableV4<span style="color:#f92672">=</span>true <span style="color:#ae81ff">\
 </span><span style="color:#ae81ff"></span>--conf spark.driver.extraJavaOptions<span style="color:#f92672">=</span>-Dcom.amazonaws.services.s3.enableV4<span style="color:#f92672">=</span>true
@@ -471,7 +471,7 @@ We ensured this by building our local distribution into the Spark Base Image.</p
 <li>running this specific distribution on the developer machine.</li>
 </ol>
 <p>However, for the moment, let&rsquo;s go with the original setup where typing <code>realpath $(which spark-submit)</code> on the will show the path to the same Spark distribution that was built into the Spark Base image. While Spark itself is written in Scala and compiled to bytecode that is always executed in a JVM, PySpark is a Python application that exposes a Python API wrapping the Java API used to communicate with the JVM. It is essential that not only the driver&rsquo;s and executor&rsquo;s Spark environment in terms of version and dependencies match, but also the Python environment.</p>
-<p>So, let&rsquo;s add the juypter and notebook dependencies to the <code>env.yml</code>:</p>
+<p>So, let&rsquo;s add the jupyter and notebook dependencies to the <code>env.yml</code>:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># We use the env.yml for the developer machine&#39;s environment,</span> 
 <span style="color:#75715e"># and in the Spark App image.</span>
 cat <span style="color:#e6db74">&lt;&lt;EOF &gt; env.yml
@@ -514,7 +514,7 @@ PYSPARK_PYTHON<span style="color:#f92672">=</span>python3 pyspark <span style="c
 </code></pre></div><p>It should look something like this:</p>
 <p><img src="fig-spark-on-k8s-repl.png" alt=""></p>
 <h3 id="jupyter-notebook">Jupyter Notebook</h3>
-<p>Finally, let&rsquo;s run this in Jupyter by instructing pyspark through environment variables to use run <code>jupyter</code> and pass the <code>notebook .</code> args:</p>
+<p>Finally, let&rsquo;s run this in Jupyter by instructing PySpark through environment variables to use run <code>jupyter</code> and pass the <code>notebook .</code> args:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">source activate python3.7-spark
 export AWS_ACCESS_KEY_ID<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>cat ../aws-access-key<span style="color:#66d9ef">)</span>
 export AWS_SECRET_ACCESS_KEY<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>cat ../aws-secret-key<span style="color:#66d9ef">)</span>
@@ -585,7 +585,7 @@ SparkContext(conf<span style="color:#f92672">=</span>conf)
 <p>Now, that we have see how all of this works, there&rsquo;s unfortunately a show-stopper to the setup.
 The driver needs to be network-addressable from the executors.
 While this is the case when running on Minikube, the Jupyter notebook server, in general, won&rsquo;t be network-addressable when running on a real cluster at AWS, at least if we&rsquo;re running it on the developer machine. Of course, we could run the notebook server on a gateway server in the same AWS VPC, however why not run the notebook server on Kubernetes itself?</p>
-<p>While we could build a separate Docker image for the notebooks, let&rsquo;s make our lifes easier and build notebook support into our Spark App image. This singlehandedly ensures that the driver running in the Jupyter Notebook container and the executors run the exact same Spark and Python dependencies. Ahh, containers are just beautiful..</p>
+<p>While we could build a separate Docker image for the notebooks, let&rsquo;s make our life easier and build notebook support into our Spark App image. This singlehandedly ensures that the driver running in the Jupyter Notebook container and the executors run the exact same Spark and Python dependencies. Ahh, containers are just beautiful.</p>
 <p>So, what do we need in order to run Jupyter in a Docker container?
 Spark? Check. Python? Check (through conda)! The Python <code>jupyter</code> and <code>notebook</code> PyPI packages? Check!!!</p>
 <p>The following Kubernetes manifest will spin up a single Pod running the notebook server (PRs on Github welcome :) ).</p>
@@ -673,9 +673,9 @@ Spark? Check. Python? Check (through conda)! The Python <code>jupyter</code> and
 <h1 id="spark-driver-ui-and-the-history-server">Spark Driver UI and the History Server</h1>
 <p>By using port-forwarding, we could also check the driver&rsquo;s Spark UI for jobs submitted to Spark on K8s in cluster-mode or for the cluster-deployed notebook server.
 However the central problem is that the Spark UI is coupled to the Spark driver process, meaning that once the process ends, the UI is no longer served.
-While we can still access the raw log files themselves in the AWS S3 bucket we configure in the <code>spark-submit</code> or <code>pyspark</code> call, accessing them visually through the UI is bit more handy, isn&rsquo;t it.</p>
+While we can still access the raw log files themselves in the AWS S3 bucket we configure in the <code>spark-submit</code> or <code>pyspark</code> call, accessing them visually through the UI is a bit more handy, isn&rsquo;t it?</p>
 <p>Here, the history server comes to rescue.
-It is deployed as a separate component, not necessarily but possibly on the same K8s cluster. It&rsquo; basically just a visual log file explorer, that parses and displays the logs stored - in our case - in S3 by the driver and executors. Therefore, it is necessary that the history server as well as the driver and executors have access to the same AWS S3 bucket, so that the latters can write to it and that the former can read from it.</p>
+It is deployed as a separate component, not necessarily but possibly on the same K8s cluster. It&rsquo; basically just a visual log file explorer, that parses and displays the logs stored - in our case - in S3 by the driver and executors. Therefore, it is necessary that the history server as well as the driver and executors have access to the same AWS S3 bucket, so that the latter can write to it and that the former can read from it.</p>
 <p>In theory, we can use the Spark Base image to run the History server, because we built in the dependencies (hadoop-aws and aws-java-sdk-bundle) for AWS access.
 However, when actually doing so it throws a <code>javax.security.auth.login.LoginException: java.lang.NullPointerException: invalid null input: name</code> due to the fact that the default Spark user in the linux container is unnamed. In the App image, we have added the line</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">echo <span style="color:#e6db74">&#39;185:x:185:0:anonymous uid:/opt/spark:/bin/false&#39;</span> &gt;&gt; /etc/passwd 
