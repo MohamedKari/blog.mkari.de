@@ -183,7 +183,7 @@ By design, the Spark Operator doesn&rsquo;t support client mode, because the one
 Client-mode-like applications, e. g. the REPL, can still simply bypass the operator using <code>--master k8s://https://...</code>.</p>
 <h2 id="spark-standalone-on-kubernetes">Spark Standalone on Kubernetes</h2>
 <p>A bit oxymoronically, one can also deploy Spark as <em>Spark Standalone on Kubernetes</em>, e. g. using the <a href="https://github.com/bitnami/charts/tree/master/bitnami/spark">bitnami/spark</a> or <a href="https://github.com/helm/charts/tree/master/stable/spark">stable/spark</a> Helm charts. This has been the way to go for deploying on Kubernetes before there was native support. Instead of installing Spark Standalone on a group of e. g. EC2 instances, one would virtualize the machines as containers running on Kubernetes. In so doing, one would spark-submit with <code>--master spark://</code> (instead of <code>--master k8s://</code>) to a Spark Standalone Master which would then spawn executors on containerized worker nodes. Because Spark Standalone simply works with the nodes that have been registered, it is not possible to directly request new resources for a given job. Instead, scaling <a href="https://github.com/bitnami/charts/blob/master/bitnami/spark/templates/hpa-worker.yaml">is generally based on CPU and memory utilization</a>. In contrast to native K8s support, where the container is created on-demand using the container image given as a parameter to <code>spark-submit</code>, thus allowing to adapt executor context to the specific application, in Spark Standalone on Kubernetes, all applications share the same pre-deployed workers. The figure below summarizes the different deployment styles.</p>
-<p><img src="spark-on-k8s/fig-spark-on-k8s-comparison.png" alt=""></p>
+<p><img src="fig-spark-on-k8s-comparison.png" alt=""></p>
 <h1 id="the-spark-container-image">The Spark Container Image</h1>
 <h2 id="overview">Overview</h2>
 <p>One central advantage of using Spark on Kubernetes over Spark Standalone is that that each application can bring its container comprising all dependencies which then can integrate with the typical Kubernetes features (e. g. ConfigMaps for managing configs).</p>
@@ -429,7 +429,7 @@ spark-submit <span style="color:#ae81ff">\
 </span><span style="color:#ae81ff"></span>    --deploy-mode cluster <span style="color:#ae81ff">\
 </span><span style="color:#ae81ff"></span>    local:///opt/spark/work-dir/app.py
 </code></pre></div><p>After submitting you application, you can easily observe driver and executor creation through the Kubernetes dashboard (<code>minikube dashboard</code>) and follow the log output. The driver&rsquo;s log looks this:</p>
-<p><img src="spark-on-k8s/fig-spark-operator-result-log.png" alt=""></p>
+<p><img src="fig-spark-operator-result-log.png" alt=""></p>
 <p>In S3 under <code>s3a://spark-mo/pi/</code>, there should be a new or updated set of result CSVs and an empty _SUCCESS flag file. Also, under <code>s3a://spark-mo/history-server/</code> there a should be new log file.</p>
 <p>Because this spark-submit call is a bit bulky, we shorten it a bit using a properties file, e. g. named spark-app.conf:</p>
 <pre><code class="language-conf" data-lang="conf">spark.kubernetes.container.image                                mokari94/spark-app:latest
@@ -512,7 +512,7 @@ PYSPARK_PYTHON<span style="color:#f92672">=</span>python3 pyspark <span style="c
 </span><span style="color:#ae81ff"></span>    --master k8s://$K8S_API_URL <span style="color:#ae81ff">\
 </span><span style="color:#ae81ff"></span>    --properties-file spark-app.conf
 </code></pre></div><p>It should look something like this:</p>
-<p><img src="spark-on-k8s/fig-spark-on-k8s-repl.png" alt=""></p>
+<p><img src="fig-spark-on-k8s-repl.png" alt=""></p>
 <h3 id="jupyter-notebook">Jupyter Notebook</h3>
 <p>Finally, let&rsquo;s run this in Jupyter by instructing pyspark through environment variables to use run <code>jupyter</code> and pass the <code>notebook .</code> args:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">source activate python3.7-spark
@@ -570,7 +570,7 @@ lines <span style="color:#f92672">=</span> spark \
 
 <span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#34;Read file from S3!&#34;</span>)
 </code></pre></div><p>As seen below, <em>print</em> statements are displayed in the notebook but the driver log is given in the terminal window.</p>
-<p><img src="spark-on-k8s/fig-spark-on-k8s-jupyter.png" alt=""></p>
+<p><img src="fig-spark-on-k8s-jupyter.png" alt=""></p>
 <p>Notice, that the code from within the Jupyter notebook is now actually marshaled and sent over to the executors on the cluster.
 Of course, if you now depend on a package in your Python code, it has to be part of the Spark App container so each executor can use it.</p>
 <p>Also note, that now, since - the driver is running on the developer machine, without further ado, you can check the driver&rsquo;s Spark UI, by default running on http://localhost:4040/.</p>
@@ -713,7 +713,7 @@ However, when actually doing so it throws a <code>javax.security.auth.login.Logi
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">helm install -f history-server-config.yaml spark-history-server stable/spark-history-server
 </code></pre></div><p>and finally, expose it to the outside using</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">minikube service spark-history-server
-</code></pre></div><p><img src="spark-on-k8s/fig-spark-on-k8s-history.png" alt=""></p>
+</code></pre></div><p><img src="fig-spark-on-k8s-history.png" alt=""></p>
 <h1 id="outlook">Outlook</h1>
 <p>In this post, we&rsquo;ve examined how to setup a fully containerized, PySpark-based, History-Server-monitored workflow for submitting Spark applications and interactively running Spark-backed notebooks on Kubernetes. While understanding and elaborating on the factors at play made this a quite lengthy post, I think the <a href="https://github.com/MohamedKari/spark-on-k8s">resulting GitHub repo</a>. I always strive to avoid trivial examples that do not capture the complexities of going into the real world of bordering systems, large data sets, networks, code dependencies, etc. So, instead of using toy examples that are incommensurable with real problems, I still present toy examples that do not distract from the big picture however while <em>respecting the challenging facets</em> of the real world. There are of course still quite some relaxations in the previous remarks incl.</p>
 <ul>
@@ -723,7 +723,7 @@ However, when actually doing so it throws a <code>javax.security.auth.login.Logi
 <li>not taking a look at integrations, e. g. with <a href="https://github.com/databricks/koalas">Databricks&rsquo; Koalas library</a> for a pandas-like user experience on Spark.</li>
 </ul>
 <p>In the next post, we&rsquo;ll see how to take everything learned so far together, to transform 1 Terabyte of the Waymo Open Dataset, consisting of about 1000 driving sequences in protobuf format, to the RGB camera frames and labels only, using 150 executors running on an EKS cluster for consumption.</p>
-<p><img src="spark-on-k8s/fig-spark-on-k8s-waymo.png" alt=""></p>
+<p><img src="fig-spark-on-k8s-waymo.png" alt=""></p>
 
   </section>
   <footer>
