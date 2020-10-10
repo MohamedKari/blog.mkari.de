@@ -1,0 +1,225 @@
+## Kubernetes Dashboard
+
+Deploy the Kubernetes Dashboard to gain an overview
+```sh
+# See https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
+
+# See https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md
+cat <<EOF | kubectl apply -f -
+apiVersion: v1                          
+kind: ServiceAccount    
+metadata:
+  name: admin-user
+  namespace: kubernetes-dashboard
+EOF 
+
+
+cat <<EOF | kubectl apply -f -
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-user
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: admin-user
+  namespace: kubernetes-dashboard
+EOF
+
+kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
+
+# Here, copy the token 
+
+kubectl proxy
+
+# Go to http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/, paste the token and sign in
+```
+
+
+```sh
+export IMAGE=mokari94/spark-base:latest
+export K8S_API_URL=https://127.0.0.1:32776
+spark-submit \
+  --master k8s://$K8S_API_URL \
+  --conf spark.kubernetes.container.image=$IMAGE \
+  --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark \
+  --conf spark.kubernetes.container.image.pullPolicy=Always \
+  --deploy-mode cluster \
+  --files file://app.py \
+  --conf spark.kubernetes.file.upload.path=local:///opt/spark/work-dir/ \
+  --py-files app.py \
+  file://app.py
+```
+
+
+
+```
+source activate python3.7-spark
+
+# --master k8s://https://127.0.0.1:32772 \
+
+export IMAGE=mokari94/spark-app:latest
+PYSPARK_PYTHON=python3 PYSPARK_DRIVER_PYTHON=jupyter PYSPARK_DRIVER_PYTHON_OPTS=notebook pyspark \
+    --master k8s://https://127.0.0.1:32772 \
+    --deploy-mode client \
+    --conf spark.executor.instances=2 \
+    --conf spark.executor.cores=1 \
+    --conf spark.task.maxFailures=3 \
+    --conf spark.hadoop.fs.s3a.multipart.size="104857600" \
+    --conf spark.hadoop.fs.s3a.endpoint=s3.eu-central-1.amazonaws.com \
+    --conf spark.hadoop.fs.s3a.access.key= \
+    --conf spark.hadoop.fs.s3a.secret.key= \
+    --conf spark.kubernetes.driver.secretKeyRef.AWS_ACCESS_KEY_ID=aws-secrets:aws-access-key \
+    --conf spark.kubernetes.driver.secretKeyRef.AWS_SECRET_ACCESS_KEY=aws-secrets:aws-secret-key \
+    --conf spark.kubernetes.executor.secretKeyRef.AWS_ACCESS_KEY_ID=aws-secrets:aws-access-key \
+    --conf spark.kubernetes.executor.secretKeyRef.AWS_SECRET_ACCESS_KEY=aws-secrets:aws-secret-key \
+    --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark \
+    --conf spark.executor.extraJavaOptions=-Dcom.amazonaws.services.s3.enableV4=true \
+    --conf spark.driver.extraJavaOptions=-Dcom.amazonaws.services.s3.enableV4=true \
+    --conf spark.kubernetes.container.image=$IMAGE \
+    --conf spark.kubernetes.container.image.pullPolicy=Always \
+    --executor-memory 1g \
+    --driver-memory 1g
+```
+
+
+
+Having a look at the Kubernetes Dashboard (for your convenience: http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy and `kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')`), shows that there a mulitple services running now. 
+
+Apart from the `kubernetes` system services and the `spark-*-webhook`, there is now `pyspark-pi-*-driver-svc` and `pyspark-pi-ui-svc`. The reference the same pod so, in the end, it doesn't matter which one we go through. Since the latter is independent of the job ID, let's go with that one. 
+
+
+
+
+Create the Spark History Server image. It uses can use the same Spark Operator image.
+
+```Dockerfile
+FROM gcr.io/spark-operator/spark-py:v3.0.0
+
+# If we don't do this, we get a LoginFailed exception on startup
+USER 0
+
+# Spark Operator comes with Hadoop Common 2.4.0 preinstalled (check: docker run -it gcr.io/spark-operator/spark-py:v3.0.0 && ls -lah /opt/jars/) 
+# Checking out the Maven repos, we see that 2.7.4 is the latest compatible one. 
+# It depends on AWS Java SDK 1.7.4.
+# By default, AWS Java SDK 1.7.4 uses v2 Request Signatures. 
+# We need to enable v4 Signatures by passing it as a command line arg to the Spark process (-Dcom.amazonaws.services.s3.enableV4=true)
+# which is possible using environment.SPARK_HISTORY_OPTS value in the Helm custom install config.
+# To be honest, a more a advanced dependency management than copying stuff over seems necessary here and would be worth looking into.
+
+# Add dependency for hadoop-aws
+ADD https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/1.7.4/aws-java-sdk-1.7.4.jar $SPARK_HOME/jars
+
+# Add hadoop-aws to access Amazon S3
+ADD https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/2.7.4/hadoop-aws-2.7.4.jar $SPARK_HOME/jars
+
+ENTRYPOINT [ "/opt/entrypoint.sh" ]
+```
+
+
+
+
+
+
+
+
+
+```sh
+export AWS_DEFAULT_REGION=eu-central-1
+export AWS_ACCESS_KEY_ID=AKIA................
+ export AWS_SECRET_ACCESS_KEY=........................................
+
+aws sts get-caller-identity
+
+aws s3 mb s3://spark-mo
+aws s3 ls
+```
+
+
+
+
+
+
+
+
+
+
+Now, jobs launched also have to log to S3, therefore, let's add the following to the `spec` section of the `spark-py-pi.yaml`.
+```
+spec:
+  sparkConf:
+    spark.eventLog.enabled: "true"
+    spark.eventLog.dir: "s3a://spark-mo/history-server/"
+    spark.hadoop.fs.s3a.endpoint: "s3.eu-central-1.amazonaws.com"
+    spark.hadoop.fs.s3a.impl: "org.apache.hadoop.fs.s3a.S3AFileSystem"
+    spark.kubernetes.driver.secretKeyRef.AWS_ACCESS_KEY_ID: aws-secrets:aws-access-key
+    spark.kubernetes.driver.secretKeyRef.AWS_SECRET_ACCESS_KEY: aws-secrets:aws-secret-key
+    spark.driver.extraJavaOptions: "-Dcom.amazonaws.services.s3.enableV4=true"
+    spark.executor.extraJavaOptions: "-Dcom.amazonaws.services.s3.enableV4=true"
+```
+
+
+
+
+
+
+
+
+
+
+
+https://github.com/aws-samples/amazon-eks-apache-spark-etl-sample/blob/master/example/kubernetes/spark-job.yaml
+
+
+/opt/spark/bin/spark-submit --class org.apache.spark.examples.SparkPi --master spark://spark-standalone-master:7077 --conf spark.driver.host=172.18.0.5 /opt/spark/examples/jars/spark-examples_2.12-3.0.0.jar
+
+
+./spark-submit --master spark://spark-standalone-master:7077 --class org.apache.spark.examples.SparkPi --conf spark.hadoop.fs.s3a.access.key --conf spark.hadoop.fs.s3a.secret.key= --conf spark.hadoop.fs.s3a.endpoint=s3.eu-central-1.amazonaws.com --conf spark.executor.extraJavaOptions=-Dcom.amazonaws.services.s3.enableV4=true --conf spark.driver.extraJavaOptions=-Dcom.amazonaws.services.s3.enableV4=true  --conf spark.driver.host=172.18.0.5 /opt/spark/work-dir/app.py
+
+sc.parallelize([1, 2, 3]).sum()
+
+
+Of course, we could also build our on image with a custom Spark distribution using the docker-build-tool `https://github.com/apache/spark/blob/master/bin/docker-image-tool.sh`. 
+However, if we can live with the older Hadoop version, I guess, if we do not want to build Spark from source, it's easiest to derive a child image from gcr.io/spark-operator/spark-py:v3.0.0. and add our custom dependencies (and also the application itself as we will see later).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// https://stackoverflow.com/questions/59655476/spark-k8s-how-to-run-spark-submit-on-kubernetes-with-client-mode
+// https://umbertogriffo.gitbook.io/apache-spark-best-practices-and-tuning/avoiding_shuffle_less_stage-_more_fast
+// https://medium.com/swlh/revealing-apache-spark-shuffling-magic-b2c304306142
+// https://spark.apache.org/docs/latest/rdd-programming-guide.html
+// https://github.com/GoogleCloudPlatform/spark-on-k8s-operator/issues/456#issuecomment-477709978
+// https://stackoverflow.com/questions/43692453/what-is-spark-local-ip-spark-driver-host-spark-driver-bindaddress-and-spark-dri
+// https://stackoverflow.com/questions/59655476/spark-k8s-how-to-run-spark-submit-on-kubernetes-with-client-mode
+
+
+
+# Spark Operator comes with Hadoop Common 2.4.0 preinstalled (check: docker run -it gcr.io/spark-operator/spark-py:v3.0.0 && ls -lah /opt/jars/) 
+# Checking out the Maven repos, we see that 2.7.4 is the latest compatible one. 
+# It depends on AWS Java SDK 1.7.4.
+# By default, AWS Java SDK 1.7.4 uses v2 Request Signatures. 
+# We need to enable v4 Signatures by passing it as a command line arg to the Spark process (-Dcom.amazonaws.services.s3.enableV4=true)
+# which is possible using environment.SPARK_HISTORY_OPTS value in the Helm custom install config.
+# To be honest, a more a advanced dependency management than copying stuff over seems necessary here and would be worth looking into.
+
+# Add dependency for hadoop-aws
+ADD https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/1.7.4/aws-java-sdk-1.7.4.jar $SPARK_HOME/jars
+
+# Add hadoop-aws to access Amazon S3
+ADD https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/2.7.4/hadoop-aws-2.7.4.jar $SPARK_HOME/jars

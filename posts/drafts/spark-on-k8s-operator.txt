@@ -1,0 +1,72 @@
+```sh
+# see https://github.com/GoogleCloudPlatform/spark-on-k8s-operator/blob/master/docs/quick-start-guide.md
+helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
+
+helm install incubator/sparkoperator --generate-name --set enableWebhook=true # --skip-crds 
+# First time, installed with skip-crds, then uninstalled and after then it suddenly worked without skip-crds
+
+kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/spark-on-k8s-operator/master/manifest/spark-rbac.yaml
+```
+
+###  Built-In Demo
+
+Try it out:
+```sh
+kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/spark-on-k8s-operator/master/examples/spark-pi.yaml
+
+# As can be seen from the yaml, this uses the `gcr.io/spark-operator/spark-py:v3.0.0` container and runs the built-in Scala-based official SparkPi example from the spark-examples_2.12-3.0.0.jar.
+kubectl logs -f spark-pi-driver
+```
+
+
+Delete it again using 
+```
+kubectl delete -f https://raw.githubusercontent.com/GoogleCloudPlatform/spark-on-k8s-operator/master/examples/spark-pi.yaml
+```
+
+### Custom App Demo
+
+What the Spark Operator for Kubernetes allows us, is to submit Spark application using `kubectl apply`. 
+To do so, let's start with the example from above.
+```py
+wget -O spark-submit-app.yaml https://raw.githubusercontent.com/GoogleCloudPlatform/spark-on-k8s-operator/master/examples/spark-py-pi.yaml
+```
+
+
+
+Adapt some lines of the `spark-submit-app.yaml` to the following: 
+```
+metadata.name: pyspark-app
+metadata.pythonVersion: "3"
+image: mokari94/spark-app:latest
+spec.imagePullPolicy: Always
+spec.mainApplicationFile: local:///opt/spark/work-dir/app.py
+```
+
+Also, in spec, add:
+```
+  sparkConf:
+    spark.eventLog.enabled: "true"
+    spark.eventLog.dir: "s3a://spark-mo/history-server/"
+    spark.hadoop.fs.s3a.endpoint: "s3.eu-central-1.amazonaws.com"
+    spark.hadoop.fs.s3a.impl: "org.apache.hadoop.fs.s3a.S3AFileSystem"
+    spark.driver.extraJavaOptions: "-Dcom.amazonaws.services.s3.enableV4=true"
+    spark.executor.extraJavaOptions: "-Dcom.amazonaws.services.s3.enableV4=true"
+    spark.kubernetes.driver.secretKeyRef.AWS_ACCESS_KEY_ID: aws-secrets:aws-access-key
+    spark.kubernetes.driver.secretKeyRef.AWS_SECRET_ACCESS_KEY: aws-secrets:aws-secret-key
+```
+
+
+Now, let's see what's happening:
+```sh
+kubectl apply -f spark-submit-app.yaml
+```
+
+
+
+
+This allows to build applications in a Docker container, put all dependencies required by the Python package in there, and adjust the execution parameter using in the `spark-submit-app.yaml`. 
+
+However, the Spark operator only supports cluster mode. 
+
+If you didn't helm-install anything else, you can run `helm uninstall $(helm list -q)` to uninstall the spark operator again.
