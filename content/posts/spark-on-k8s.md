@@ -118,7 +118,7 @@ Client-mode-like applications, e. g. the REPL, can still simply bypass the opera
 ## Spark Standalone on Kubernetes
 A bit oxymoronically, one can also deploy Spark as _Spark Standalone on Kubernetes_, e. g. using the [bitnami/spark](https://github.com/bitnami/charts/tree/master/bitnami/spark) or [stable/spark](https://github.com/helm/charts/tree/master/stable/spark) Helm charts. This has been the way to go for deploying on Kubernetes before there was native support. Instead of installing Spark Standalone on a group of e. g. EC2 instances, one would virtualize the machines as containers running on Kubernetes. In so doing, one would spark-submit with `--master spark://` (instead of `--master k8s://`) to a Spark Standalone Master which would then spawn executors on containerized worker nodes. Because Spark Standalone simply works with the nodes that have been registered, it is not possible to directly request new resources for a given job. Instead, scaling [is generally based on CPU and memory utilization](https://github.com/bitnami/charts/blob/master/bitnami/spark/templates/hpa-worker.yaml). In contrast to native K8s support, where the container is created on-demand using the container image given as a parameter to `spark-submit`, thus allowing to adapt executor context to the specific application, in Spark Standalone on Kubernetes, all applications share the same pre-deployed workers. The figure below summarizes the different deployment styles.
 
-![](spark-on-k8s/fig-spark-on-k8s-comparison.png)
+![](fig-spark-on-k8s-comparison.png)
 
 
 # The Spark Container Image
@@ -442,7 +442,7 @@ spark-submit \
 
 After submitting you application, you can easily observe driver and executor creation through the Kubernetes dashboard (``minikube dashboard``) and follow the log output. The driver's log looks this:
 
-![](spark-on-k8s/fig-spark-operator-result-log.png)
+![](fig-spark-operator-result-log.png)
 
 In S3 under `s3a://spark-mo/pi/`, there should be a new or updated set of result CSVs and an empty _SUCCESS flag file. Also, under `s3a://spark-mo/history-server/` there a should be new log file.
 
@@ -554,7 +554,7 @@ PYSPARK_PYTHON=python3 pyspark \
 
 It should look something like this:
 
-![](spark-on-k8s/fig-spark-on-k8s-repl.png)
+![](fig-spark-on-k8s-repl.png)
 
 ### Jupyter Notebook
 Finally, let's run this in Jupyter by instructing pyspark through environment variables to use run `jupyter` and pass the `notebook .` args:
@@ -621,7 +621,7 @@ print("Read file from S3!")
 
 As seen below, _print_ statements are displayed in the notebook but the driver log is given in the terminal window. 
 
-![](spark-on-k8s/fig-spark-on-k8s-jupyter.png)
+![](fig-spark-on-k8s-jupyter.png)
 
 Notice, that the code from within the Jupyter notebook is now actually marshaled and sent over to the executors on the cluster. 
 Of course, if you now depend on a package in your Python code, it has to be part of the Spark App container so each executor can use it.
@@ -806,7 +806,7 @@ and finally, expose it to the outside using
 minikube service spark-history-server
 ```
 
-![](spark-on-k8s/fig-spark-on-k8s-history.png)
+![](fig-spark-on-k8s-history.png)
 
 
 # Outlook
@@ -818,4 +818,4 @@ In this post, we've examined how to setup a fully containerized, PySpark-based, 
 
 In the next post, we'll see how to take everything learned so far together, to transform 1 Terabyte of the Waymo Open Dataset, consisting of about 1000 driving sequences in protobuf format, to the RGB camera frames and labels only, using 150 executors running on an EKS cluster for consumption. 
 
-![](spark-on-k8s/fig-spark-on-k8s-waymo.png)
+![](fig-spark-on-k8s-waymo.png)
