@@ -236,6 +236,31 @@
     </p>
   </footer>
 
+
+  <script defer type="module">
+    
+    let pairs = document.cookie.split(";")
+    let ref_list = pairs.map(pair => pair.split("=")).filter(splitted => splitted[0].trim() == "ref")
+
+    let ref = ""
+    if (ref_list.length == 0) {
+      ref = String(Math.random()).replace(".", "")
+      var new_cookie = "ref=" + ref + ";path=/;expires=Wed, 01 Dec 2022 01:15:29 GMT;"
+      
+      document.cookie = new_cookie 
+    } else {
+      ref = ref_list[0][1]
+      
+    }
+    
+
+    let url="https://api.mkari.de/counter/" + document.location.pathname.replaceAll("/", "_") + "?ref=" + ref
+    fetch(url, {
+      method: "POST"
+    })
+
+  </script>
+
 </body>
 </html>
 
