@@ -1,5 +1,5 @@
 hugo-serve:
-	hugo serve -D
+	hugo serve
 
 pub:
 	./publish.sh
