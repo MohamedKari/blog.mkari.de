@@ -7,10 +7,20 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>&amp;copy; Mohamed Kari&amp;nbsp;•&amp;nbsp;All rights reserved.&amp;nbsp;•&amp;nbsp;2020</copyright>
-    <lastBuildDate>Tue, 06 Oct 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 16 Nov 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://mohamedkari.github.io/blog.mkari.de/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Running an X Server with Indirect GLX Rendering on MacOS for containerized applications with GUIs</title>
+      <link>https://mohamedkari.github.io/blog.mkari.de/posts/glx-on-mac/</link>
+      <pubDate>Mon, 16 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://mohamedkari.github.io/blog.mkari.de/posts/glx-on-mac/</guid>
+      <description>Intro For my latest research, I am looking into visual SLAM (e. g. ORB-SLAM2). Since VSLAM libraries are designated for running efficiently on embedded systems, it is generally programmed in C/C++ and designed with just Linux in mind (even though, for example, in version 2, ROS also aims for compatibility with MacOS).
+As a MacBook user, this becomes &amp;ldquo;interesting&amp;rdquo;. Of course, Docker makes it easy to run libraries for Linux. However, once the software also comprises graphical UIs, e.</description>
+    </item>
     
     <item>
       <title>Native Spark on Kubernetes</title>

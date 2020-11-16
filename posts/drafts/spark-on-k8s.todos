@@ -1,7 +1,0 @@
-Too big to fix
-- Multistage Build
-- Deploy to EKS
-
-Too small to fix
-- Expose History Server through NodePort
-- Namespaces Roles
