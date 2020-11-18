@@ -71,7 +71,7 @@
   </header>
   
   <section id="js-article" class="p-article__body">
-    <p><em>Using Certbot, Nginx, and Flask, each running in a Docker container spun up through Docker Compose, this post shows how to serve an API over HTTPS conveniently with Let&rsquo;s Encrypt certificates.</em></p>
+    <p><em>Using Certbot, Nginx, and Flask, each running in a Docker container spun up through Docker Compose, this post shows how to serve an API over HTTPS conveniently with Let&rsquo;s Encrypt certificates. Template repo available under</em> <a href="https://github.com/MohamedKari/secure-flask-container-template">https://github.com/MohamedKari/secure-flask-container-template</a>.</p>
 <h1 id="tldr">TL;DR</h1>
 <p>Make sure your server is reachable under your domain name and has Docker and Docker Compose installed.</p>
 <p>Then, to spin up a Flask container serving an API securely over HTTPS, run:</p>
@@ -271,7 +271,8 @@ location /.well-known/acme-challenge/ {
 <span style="color:#66d9ef">done</span> &amp; <span style="color:#ae81ff">\
 </span><span style="color:#ae81ff"></span>bash docker-entrypoint.sh nginx -g <span style="color:#e6db74">&#34;daemon off;&#34;</span>
 </code></pre></div><p>This will run <code>docker-entrypoint.sh</code> immediately and, after 12h, <code>nginx -s reload;</code> for the first time.</p>
-<p>Now, we get the following &ldquo;launch experience&rdquo;.</p>
+<p>The resulting high-level setup for auto-renewing certificates looks like this:</p>
+<p><img src="auto-renewal-setup.png" alt=""></p>
 <h1 id="conclusion">Conclusion</h1>
 <p>Even though the post became much longer than expected, I think the TL;DR shows that it is possible to go from zero to an HTTPS-secured API implementation in minutes, once the setup is clear. Even more so, when combined with something like docker-machine&rsquo;s capability to spin up a web server in the personally preferred cloud in 2 minutes. This makes it easy to quickly implement a backend system, e. g. requestable with JavaScript through the <code>fetch</code> Web API like from an HTTPS-secured web site. The next step certainly is to put this into a CI/CD pipeline to allow quick re-deployments.</p>
 <section class="footnotes" role="doc-endnotes">

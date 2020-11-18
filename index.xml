@@ -18,7 +18,7 @@
       <pubDate>Wed, 18 Nov 2020 00:00:00 +0000</pubDate>
       
       <guid>https://mohamedkari.github.io/blog.mkari.de/posts/secure-apis/</guid>
-      <description>Using Certbot, Nginx, and Flask, each running in a Docker container spun up through Docker Compose, this post shows how to serve an API over HTTPS conveniently with Let&amp;rsquo;s Encrypt certificates.</description>
+      <description>Using Certbot, Nginx, and Flask, each running in a Docker container spun up through Docker Compose, this post shows how to serve an API over HTTPS conveniently with Let&amp;rsquo;s Encrypt certificates. Template repo available under &lt;a href=&#34;https://github.com/MohamedKari/secure-flask-container-template&#34;&gt;https://github.com/MohamedKari/secure-flask-container-template&lt;/a&gt;.</description>
     </item>
     
     <item>
