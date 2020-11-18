@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>&amp;copy; Mohamed Kari&amp;nbsp;•&amp;nbsp;All rights reserved.&amp;nbsp;•&amp;nbsp;2020</copyright>
-    <lastBuildDate>Mon, 16 Nov 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 18 Nov 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://mohamedkari.github.io/blog.mkari.de/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Securing a containerized Flask API with Let&#39;s Encrypt Certificates</title>
+      <link>https://mohamedkari.github.io/blog.mkari.de/posts/secure-apis/</link>
+      <pubDate>Wed, 18 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://mohamedkari.github.io/blog.mkari.de/posts/secure-apis/</guid>
+      <description>Using Certbot, Nginx, and Flask, each running in a Docker container spun up through Docker Compose, this post shows how to serve an API over HTTPS conveniently with Let&amp;rsquo;s Encrypt certificates.</description>
+    </item>
     
     <item>
       <title>Running an X Server with Indirect GLX Rendering on MacOS for containerized applications with GUIs</title>
