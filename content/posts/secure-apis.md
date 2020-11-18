@@ -3,9 +3,9 @@ title: "Securing a containerized Flask API with Let's Encrypt Certificates"
 date: 2020-11-18
 draft: False
 author: Mo Kari
-summary: Using Certbot, Nginx, and Flask, each running in a Docker container spun up through Docker Compose, this post shows how to serve an API over HTTPS conveniently with Let's Encrypt certificates. 
+summary: Using Certbot, Nginx, and Flask, each running in a Docker container spun up through Docker Compose, this post shows how to serve an API over HTTPS conveniently with Let's Encrypt certificates. Template repo available under https://github.com/MohamedKari/secure-flask-container-template.
 ---
-_Using Certbot, Nginx, and Flask, each running in a Docker container spun up through Docker Compose, this post shows how to serve an API over HTTPS conveniently with Let's Encrypt certificates._ 
+_Using Certbot, Nginx, and Flask, each running in a Docker container spun up through Docker Compose, this post shows how to serve an API over HTTPS conveniently with Let's Encrypt certificates. Template repo available under_ https://github.com/MohamedKari/secure-flask-container-template.
 
 # TL;DR
 Make sure your server is reachable under your domain name and has Docker and Docker Compose installed. 
@@ -265,7 +265,11 @@ bash docker-entrypoint.sh nginx -g "daemon off;"
 
 This will run `docker-entrypoint.sh` immediately and, after 12h, `nginx -s reload;` for the first time.
 
-Now, we get the following "launch experience".
+The resulting high-level setup for auto-renewing certificates looks like this:
+
+![](auto-renewal-setup.png)
+
+Now, we get the following "launch experience":
 
 
 # Conclusion
