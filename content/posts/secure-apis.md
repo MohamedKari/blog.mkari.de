@@ -269,8 +269,6 @@ The resulting high-level setup for auto-renewing certificates looks like this:
 
 ![](auto-renewal-setup.png)
 
-Now, we get the following "launch experience":
-
 
 # Conclusion
 Even though the post became much longer than expected, I think the TL;DR shows that it is possible to go from zero to an HTTPS-secured API implementation in minutes, once the setup is clear. Even more so, when combined with something like docker-machine's capability to spin up a web server in the personally preferred cloud in 2 minutes. This makes it easy to quickly implement a backend system, e. g. requestable with JavaScript through the `fetch` Web API like from an HTTPS-secured web site. The next step certainly is to put this into a CI/CD pipeline to allow quick re-deployments.
