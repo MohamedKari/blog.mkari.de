@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>&amp;copy; Mohamed Kari&amp;nbsp;•&amp;nbsp;All rights reserved.&amp;nbsp;•&amp;nbsp;2020</copyright>
-    <lastBuildDate>Wed, 18 Nov 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 23 Nov 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://mohamedkari.github.io/blog.mkari.de/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Primitives of MLOps Infrastructure</title>
+      <link>https://mohamedkari.github.io/blog.mkari.de/posts/mlops/</link>
+      <pubDate>Mon, 23 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://mohamedkari.github.io/blog.mkari.de/posts/mlops/</guid>
+      <description>Most &amp;ldquo;frameworks for bringing ML into production&amp;rdquo; only cover part of the picture. Let&amp;rsquo;s try to take a step back and make sense of the different framework-agnostic facets of MLOps, namely Continuous Code Integration and Delivery, Continuous Data Provisioning, Continuous Training, and Continuous Delivery.</description>
+    </item>
     
     <item>
       <title>Securing a containerized Flask API with Let&#39;s Encrypt Certificates</title>
