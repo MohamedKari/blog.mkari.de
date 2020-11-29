@@ -4,16 +4,16 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
   
-  <title>Primitives of MLOps Infrastructure</title>
-  <meta property="og:title" content="Primitives of MLOps Infrastructure" />
-  <meta name="twitter:title" content="Primitives of MLOps Infrastructure" />
+  <title>A minimum viable CI/CD chain for deploying docker-composed applications to a single remote Docker host</title>
+  <meta property="og:title" content="A minimum viable CI/CD chain for deploying docker-composed applications to a single remote Docker host" />
+  <meta name="twitter:title" content="A minimum viable CI/CD chain for deploying docker-composed applications to a single remote Docker host" />
   
 
   
 
   <meta name="author" content="Mo Kari"/>
   <meta property="og:site_name" content="" />
-  <meta property="og:url" content="https://mohamedkari.github.io/blog.mkari.de/posts/mlops/" />
+  <meta property="og:url" content="https://mohamedkari.github.io/blog.mkari.de/posts/single-docker-host-cicd/" />
 
   
   <meta name="twitter:card" content="summary" />
@@ -54,12 +54,12 @@
 
 <article class="p-article">
   <header>
-    <h1>Primitives of MLOps Infrastructure</h1>
+    <h1>A minimum viable CI/CD chain for deploying docker-composed applications to a single remote Docker host</h1>
     <div>
       <div class="c-time">
         Posted on
-<time datetime="2020-11-23T00:00:00Z">
-  Nov 23, 2020
+<time datetime="2020-11-18T00:00:00Z">
+  Nov 18, 2020
 </time>
 
       </div>
@@ -71,94 +71,170 @@
   </header>
   
   <section id="js-article" class="p-article__body">
-    <p><em>Most &ldquo;frameworks for bringing ML into production&rdquo; only cover part of the picture. Let&rsquo;s try to take a step back and make sense of the different framework-agnostic facets of MLOps, namely Continuous Code Integration and Delivery, Continuous Data Provisioning, Continuous Training, and Continuous Delivery.</em></p>
+    <p>This post shows a minimum viable setup for deploying a set of docker-composed containers to a single Docker host in your preferred cloud through a GitHub Actions workflow. It extends the previous post on <a href="/posts/secure-apis">secure APIs</a>.</p>
 <h1 id="tldr">TL;DR</h1>
-<p>A picture&rsquo;s worth a thousand words:
-<img src="mlops-infrastructure.png" alt=""></p>
-<h1 id="ml-applications-and-models">ML applications and models</h1>
-<p>An instance of a machine learning application is characterized <sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> by</p>
-<ul>
-<li>the model code and model hyperparameters used to learn the model parameters, run inferences, and evaluate them, and</li>
-<li>the data used to learn the model parameters, that is used to produce a serialized model including its structure and parameters.</li>
-</ul>
-<p>I understand a model as the combination of model code
-and the serialized model including its structure parameters and its parameters
-A single version of model code can be used to produce different model parameters,
-e. g. by modifying the length of the training, modifying the model hyperparameters, or modifying the model data used for training.
-Model code is also used to evaluate the model parameters and to serve the model.
-Changing either the model code or the model parameters results in a new model version.</p>
-<p>Key aspects against which MLOps infrastructure is to be designed include:</p>
-<ul>
-<li><em>different machine learning paradigms</em> that are not limited to supervised learning</li>
-<li><em>experimenting</em> with different features, algorithms, hyperparameter configurations, resulting in different qualities that need to be tracked and reproduced</li>
-<li><em>externally controlled time-variant factors of quality</em> namely that the application quality is subject to changes in the training data distribution and production data distribution thus requiring data schema and distribution assumption validation, continuous training, and performance monitoring.</li>
-<li><em>interdisciplinary teams</em> comprising subject matter experts, data engineers, data scientists, and ML engineers</li>
-</ul>
-<h1 id="components-of-mlops">Components of MLOps</h1>
-<h2 id="continuous-code-integration-and-delivery">Continuous Code Integration and Delivery</h2>
-<p>MLOps infrastructure should allow drafting, developing, packaging, building, testing,
-releasing, and version-controlling model code that comprises components for
-loading datasets and verifying assumptions against it,
-engineering features from the provisioned dataset,
-learning parameters through training, validation, and tuning,
-validating the model against the test data,
-serving the model for backend-based inference services or batch inference, or
-building a deployable model artifact for embedded inference.</p>
-<p>Generally, model code is packaged as a Docker container.
-Apart from the automated code integration and delivery pipeline, for drafting model code,
-notebook environments and interactive visualization tools play a central role.</p>
-<h2 id="continuous-data-provisioning">Continuous Data Provisioning</h2>
-<p>MLOps infrastructure should allow provisioning feature datasets through an automated
-data provisioning pipeline that comprises steps for
-data extraction, data validation, data splitting, data transformation, and feature engineering.
-In supervised learning scenarios these training, validation, and test features comprise input features and output features.
-The data provisioning implementation is part of the model code.</p>
-<p>Feature stores can provide a reasonable intermediary stage that integrate data from
-upstream data sources and allow easy access for downstream training pipelines
-while possibly fostering feature reuse across teams.
-Depending on the application, it might be useful to maintain a multi-stage pipeline that
-distinguishes between model-specific data preprocessing on the hand,
-and upstream reusable <em>cross-application</em> datasets on the other hand.
-The feature store could therefore act as experiment-specific cache, or a central location for access and discovery, or both.
-Feature stores are not a certain technology but an architectural role which is played by something otherwise referred to as a database.</p>
-<p>Over time, the data&rsquo;s structure and the pool of examples are subject to change.
-Therefore, to ensure exact reproducibility, a concept for data versioning needs to be in place
-that to re-access or re-fetch the same dataset and creating the same data splits,
-even if the source data pools have changed.
-This allows debugging, testing, re-creating a model in production after model evolution,
-and separating between data pipelines for models in production and models under development, e. g. with new features.</p>
-<p>To ensure that retraining a model over time does not worsen a model&rsquo;s quality due to unexpected changes in data,
-it is necessary to validate assumptions against the dataset.</p>
-<h2 id="continuous-training">Continuous Training</h2>
-<p>MLOps infrastructure should allow finding the best model parameters for a specified feature dataset and the released model code artifact,
-using an automated pipeline that comprises steps for automated training, hyperparameter configuration tuning, and evaluation based on test set metrics and test cases.
-The training implementation, tuning, and evaluation is part of the model code, even though it might be necessary that the model code artifact
-complies to an interface required by the pipeline orchestrator.</p>
-<p>The training pipeline allows for experiment logging and tracking and distributed training, in particular for multi-GPU training.
-Triggers for retraining a model include on-demand invocation, time-based scheduling, availability of new data,
-availability of a new model code, model performance degradation, and changes in statistical properties of the data.</p>
-<p>The training pipeline outputs a serialized model, comprising its structure and parameters.
-Depending on the concrete application design, the serialized could require application-specific mode code for inference,
-or rely on framework code only.
-The serialized model and information on the execution
-including the hyperparameters, the evaluation results, and possibly a reference to the versioned dataset
-are persisted in a model store.</p>
-<h2 id="continuous-model-delivery">Continuous Model Delivery</h2>
-<p>MLOps infrastructure should allow promoting serialized models from the model store to production by packaging and releasing them
-as an executable or as a dependency for on-device deployment, for deployment as a service or deployment as a short-running or long-running job.
-Deployments could follow a phased roll-out where new model version are only acessible to a subset of model consumers.
-Through model monitoring, the performance as estimated by the model evaluation using the test dataset, should be continuously compared to the actual performance.
-Drift detections can help to warn early against declining performance, thus triggering a retraining or indicating a model code update.
-For deployment as a service, a backend-based approach monitoring must be installed.
-For on-device deployment, monitoring must be realized through a dedicated feedback loop.</p>
-<section class="footnotes" role="doc-endnotes">
-<hr>
 <ol>
-<li id="fn:1" role="doc-endnote">
-<p>Sato, Wider, Windheuser 2019. Continuous Delivery for Machine Learning. <a href="https://martinfowler.com/articles/cd4ml.html">https://martinfowler.com/articles/cd4ml.html</a> <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
-</li>
+<li>Create a gitignored .env file with secrets</li>
+<li>Adapt your docker-compose file, so that it reads secrets from the environment</li>
+<li>Push the .env secrets and the Docker daemon socket certificates, key and IP to the GitHub Actions Secret store</li>
+<li>Add the cicd.yml file to .github/workflows</li>
 </ol>
-</section>
+<p>I&rsquo;ll assume that you&rsquo;re</p>
+<ul>
+<li>working on MacOS,</li>
+<li>using docker-compose to launch your containerized application,</li>
+<li>used docker-machine to create the remote machine,</li>
+<li>using GitHub for VCS and CI/CD,</li>
+<li>are only using a single deployment tier (dev = production).</li>
+</ul>
+<h1 id="overview">Overview</h1>
+<p>Even in times of container management platforms, it sometimes might be desirable to deploy a single container with absolutely no scalabilty, availability or fault-tolerance guarantees, and even with no split-traffic testing whatsoever. The most important thing however, even for a tiny deployment, often is just being automated. Why? Because things such as the name of the server to ssh to, the directory to cd into, and the name of an image to launch, are things not worth remembering.</p>
+<p>Let&rsquo;s assume you&rsquo;re developing a small and non-critical application backend in a GitHub repo comprising a single containerized service, or even multiple services, described by a <code>docker-compose.yml</code> spec – for example, an application serving an HTTPS-secured API. Even for such a small and non-critical application, good practices make you fast. One good practice is to automate stuff, e. g. the deployment of the application. Let&rsquo;s extend the <a href="/posts/secure-apis">API-driven and HTTPS-secured application presented in a previous post</a> by a CI/CD and deployment pipeline.</p>
+<p>One of the Docker daemons&rsquo;s properties I really like and rely on often, is its network transparency. Whether you operate on a remote or on the local host makes nearly no difference. All that&rsquo;s required is to set some environment variables that indicate</p>
+<ul>
+<li>the URL to the remote host&rsquo;s Docker daemon socket and</li>
+<li>the path to the certificates for authenticating the client to the server and vice versa.</li>
+</ul>
+<p>This network work transparency makes it dead easy to spawn up a container on a remote host without the need to deal with SSH certificates, in particular, if docker-machine was used to create the remote host, because it conveniently deploys the certificates used for authentication as part of the machine creation in your favorite cloud.</p>
+<p>That is, for CI/CD, if you have spun up the deployment target server with docker-machine (meaning you have a server running Docker and exposing its certificate-secured Docker daemon through TCP, and you have matching client certificates), the hardest part is to make these certificates available on the build runner.</p>
+<h1 id="storing-secrets-in-the-cicd-system">Storing secrets in the CI/CD system</h1>
+<p>For the purpose of this blog post, let&rsquo;s assume your source of truth for secrets</p>
+<ol>
+<li>are certificates created by docker-machine on your local dev computer</li>
+</ol>
+<pre><code>~/.docker
+└── machine
+    ├── certs
+    │   ├── ca-key.pem
+    │   ├── ca.pem
+    │   ├── cert.pem
+    │   └── key.pem
+    └── machines
+        └── web-mkari
+            ├── ca.pem
+            ├── cert.pem
+            ├── config.json
+            ├── id_rsa
+            ├── id_rsa.pub
+            ├── key.pem
+            ├── server-key.pem
+            └── server.pem
+</code></pre><ol start="2">
+<li>a gitignored <code>.env</code> file in the repo directory.</li>
+</ol>
+<pre><code class="language-.env" data-lang=".env"># .env
+DOMAIN_NAME=...
+EMAIL_ADDRESS=...
+GITHUB_TOKEN=...
+REPO_OWNER=...
+REPO_NAME=...
+DOCKER_MACHINE_NAME=...
+</code></pre><p>On the local machine, in order to set the values from the <code>.env</code> to the environment I usually <code>source env.sh</code> (or <code>. env.sh</code> in a Makefile):</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># env.sh</span>
+export <span style="color:#66d9ef">$(</span>cat .env |grep <span style="color:#e6db74">&#34;^[^#]&#34;</span><span style="color:#66d9ef">)</span>
+</code></pre></div><p>To access these secrets from the GitHub Actions build runner, we could use</p>
+<ol>
+<li>tools like <a href="https://git-secret.io/">https://git-secret.io/</a> or <a href="https://www.agwa.name/projects/git-crypt/">https://www.agwa.name/projects/git-crypt/</a> that allow encrypting secrets directly in git by offering commands to encrypt and decrypt it, or</li>
+<li>we can use GitHub Actions Secrets which is a key-value store, provided by GitHub and associated with the GitHub repo.</li>
+</ol>
+<p>If we rely on alternative 1), then we would need to decrypt the encrypted files in version control on the build runner using the corresponding tool. However, in order to decrypt the encrypted files, we would need to use a key. And the original questions pops up: How do we get the key to the build runner? Now, there&rsquo;s only the option of GitHub Actions Secrets left. So, there&rsquo;s no way out. We need to get at least one secret to the build runner, and because GitHub manages the build runners on our behalf, we must use the built-in GitHub Actions Secrets in any case. Therefore, let&rsquo;s use only GitHub Actions Secrets and discard the idea of involving alternative 1).</p>
+<p>So how do we get our secrets to GitHub actions? We can either copy-paste them using the GitHub UI, or we can use GitHub API. Since, copy-pasting all relevant certificates is a bit tedious, let&rsquo;s opt for the API-based approach. Due to the encryption part, it&rsquo;s not easily doable using <code>curl</code>, so I&rsquo;ve been using a tiny Python CLI: <a href="https://gist.github.com/MohamedKari/d6a2a7a6cdfe5aee32a6c8eefd6029be">https://gist.github.com/MohamedKari/d6a2a7a6cdfe5aee32a6c8eefd6029be</a>.</p>
+<p>To run it, fetch the <code>gh-secrets.sh</code> file wich will create a new python virtual env, activate it, install the project&rsquo;s Python dependencies, and then fetch the python file it self.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">bash &lt;<span style="color:#f92672">(</span>curl -S https://gist.githubusercontent.com/MohamedKari/d6a2a7a6cdfe5aee32a6c8eefd6029be/raw/gh-secrets.sh<span style="color:#f92672">)</span>
+source .gh-secrets/bin/activate
+</code></pre></div><p>So, let&rsquo;s get the certificates and key over</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># set all environments variables from .env file</span> 
+source env.sh
+
+<span style="color:#75715e"># store the remote host IP, the CA certificate (used for authenticating the server), and the client certificate and key (used for authenticating the client) in the GitHub Actions Secrets store</span>
+<span style="color:#75715e"># If you&#39;re not using docker-machine, you can set these values manually with keys DOCKER_HOST, CA, CERT, and KEY using `python github-secrets.py set ...`</span>
+python gh-secrets.py deploy_docker_machine_certs $REPO_OWNER $REPO_NAME $DOCKER_MACHINE_NAME
+</code></pre></div><p>Because the build runner will start the Docker containers on the remote Docker host through <code>docker-compose</code> with certain application-specific arguments (e. g. in this case, for certbot to request Let&rsquo;s Encrypt certificates with the correct domain), we also need to store sensitive application-specific arguments in GitHub.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">python github-secrets.py set $REPO_OWNER $REPO_NAME $EMAIL_ADDRESS $EMAIL_ADDRESS
+python github-secrets.py set $REPO_OWNER $REPO_NAME $DOMAIN_NAME $DOMAIN_NAME
+</code></pre></div><p><code>python github-secrets.py list</code> should show the names of all Secrets in the repo.</p>
+<h1 id="specifying-the-integration-and-deployment-pipeline">Specifying the integration and deployment pipeline</h1>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml"><span style="color:#66d9ef">name</span>: CI
+
+<span style="color:#66d9ef">on</span>: 
+  - push
+  - pull_request
+
+<span style="color:#66d9ef">jobs</span>:
+  <span style="color:#66d9ef">build-deploy</span>:
+    <span style="color:#66d9ef">name</span>: Build and deploy
+
+    <span style="color:#66d9ef">runs-on</span>: ubuntu-latest
+
+    <span style="color:#66d9ef">steps</span>: 
+      - <span style="color:#66d9ef">uses</span>: actions/checkout@v2
+
+      - <span style="color:#66d9ef">name</span>: Check secret existence
+        <span style="color:#66d9ef">env</span>: 
+          <span style="color:#66d9ef">CA</span>: ${{ secrets.CA }}
+          <span style="color:#66d9ef">CERT</span>: ${{ secrets.CERT }}
+          <span style="color:#66d9ef">KEY</span>: ${{ secrets.KEY }}
+          <span style="color:#66d9ef">DOCKER_HOST</span>: ${{ secrets.DOCKER_HOST }}
+          <span style="color:#66d9ef">DOMAIN_NAME</span>: ${{ secrets.DOMAIN_NAME }}
+          <span style="color:#66d9ef">EMAIL_ADDRESS</span>: ${{ secrets.EMAIL_ADDRESS }}
+        <span style="color:#66d9ef">run</span>: <span style="color:#e6db74">|
+</span><span style="color:#e6db74">          if [ -z &#34;$CA&#34; ]; then exit 100; fi</span>
+          if [ -z <span style="color:#e6db74">&#34;$CERT&#34;</span> ]; then exit <span style="color:#ae81ff">100</span>; fi
+          if [ -z <span style="color:#e6db74">&#34;$KEY&#34;</span> ]; then exit <span style="color:#ae81ff">100</span>; fi
+          if [ -z <span style="color:#e6db74">&#34;$DOCKER_HOST&#34;</span> ]; then exit <span style="color:#ae81ff">100</span>; fi
+          if [ -z <span style="color:#e6db74">&#34;$DOMAIN_NAME&#34;</span> ]; then exit <span style="color:#ae81ff">100</span>; fi
+          if [ -z <span style="color:#e6db74">&#34;$EMAIL_ADDRESS&#34;</span> ]; then exit <span style="color:#ae81ff">100</span>; fi
+ 
+
+      - <span style="color:#66d9ef">name</span>: Build images
+        <span style="color:#66d9ef">run</span>: docker-compose build
+
+      <span style="color:#75715e">#- name: Intra-Container test</span>
+      <span style="color:#75715e">#  run: |</span>
+      <span style="color:#75715e">#    docker-compose -f docker-compose.test.yml up</span>
+
+      - <span style="color:#66d9ef">name</span>: Deploy container to remote machine
+        <span style="color:#66d9ef">env</span>:
+          <span style="color:#66d9ef">CA</span>: ${{ secrets.CA }}
+          <span style="color:#66d9ef">CERT</span>: ${{ secrets.CERT }}
+          <span style="color:#66d9ef">KEY</span>: ${{ secrets.KEY }}
+          <span style="color:#66d9ef">DOCKER_TLS_VERIFY</span>: <span style="color:#ae81ff">1</span>
+          <span style="color:#66d9ef">DOCKER_HOST</span>: ${{ secrets.DOCKER_HOST }}
+          <span style="color:#66d9ef">DOCKER_CERT_PATH</span>: /home/runner/work/${{ github.event.repository.name }}/${{ github.event.repository.name }}/certs
+          <span style="color:#66d9ef">DOMAIN_NAME</span>: ${{ secrets.DOMAIN_NAME }}
+          <span style="color:#66d9ef">EMAIL_ADDRESS</span>: ${{ secrets.EMAIL_ADDRESS }}
+        <span style="color:#66d9ef">run</span>: <span style="color:#e6db74">|
+</span><span style="color:#e6db74">          mkdir certs</span>
+          printf <span style="color:#e6db74">&#39;%s&#39;</span> <span style="color:#e6db74">&#34;$CA&#34;</span> &gt; certs/ca.pem
+          printf <span style="color:#e6db74">&#39;%s&#39;</span> <span style="color:#e6db74">&#34;$CERT&#34;</span> &gt; certs/cert.pem
+          printf <span style="color:#e6db74">&#39;%s&#39;</span> <span style="color:#e6db74">&#34;$KEY&#34;</span> &gt; certs/key.pem  
+          docker-compose down
+          docker-compose up --detach
+          docker ps
+      - <span style="color:#66d9ef">name</span>: Run smoke test
+        <span style="color:#66d9ef">timeout-minutes</span>: <span style="color:#ae81ff">1</span>
+        <span style="color:#66d9ef">env</span>: 
+          <span style="color:#66d9ef">DOMAIN_NAME</span>: ${{ secrets.DOMAIN_NAME }}
+        <span style="color:#66d9ef">run</span>: <span style="color:#e6db74">|
+</span><span style="color:#e6db74">          until curl -s https://$DOMAIN_NAME/health; do</span>
+            sleep 5s
+          done
+          curl -v https://$DOMAIN_NAME/health
+          echo <span style="color:#e6db74">&#34;Healthy.&#34;</span>;
+</code></pre></div><p>The build runner will</p>
+<ul>
+<li>checkout the repo,</li>
+<li>check if all required secrets (as indicated manually) are set to GitHub Actions secrets store and are reabable from the environment,</li>
+<li>write the certificates to a directory on disk,</li>
+<li>set a path to DOCKER_CERT_PATH environment pointing to the certificate directory,</li>
+<li>build the Docker images,</li>
+<li>shutdown running containers on the remote host,</li>
+<li>start the containers from the newly build images, and</li>
+<li>do a smoke test against a <code>/health</code> endpoint exposed by one of the launched containers.</li>
+</ul>
+<h1 id="conclusion">Conclusion</h1>
+<p>Gotta love CI/CD.
+<img src="github-actios-ui.png" alt=""></p>
 
   </section>
   <footer>
@@ -167,11 +243,12 @@ For on-device deployment, monitoring must be realized through a dedicated feedba
       <div class="c-pagination__ctrl">
         <div class="c-pagination__newer">
           
+          <a href="https://mohamedkari.github.io/blog.mkari.de/posts/mlops/">Newer</a>
           
         </div>
         <div class="c-pagination__older">
           
-          <a href="https://mohamedkari.github.io/blog.mkari.de/posts/single-docker-host-cicd/">Older</a>
+          <a href="https://mohamedkari.github.io/blog.mkari.de/posts/secure-apis/">Older</a>
           
         </div>
       </div>

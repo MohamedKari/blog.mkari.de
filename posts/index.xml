@@ -22,6 +22,15 @@
     </item>
     
     <item>
+      <title>A minimum viable CI/CD chain for deploying docker-composed applications to a single remote Docker host</title>
+      <link>https://mohamedkari.github.io/blog.mkari.de/posts/single-docker-host-cicd/</link>
+      <pubDate>Wed, 18 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://mohamedkari.github.io/blog.mkari.de/posts/single-docker-host-cicd/</guid>
+      <description>A minimum viable setup for deploying a set of docker-composed containers to a single Docker host in your preferred cloud through a GitHub Actions workflow. This post extends the previous one on secure APIs.</description>
+    </item>
+    
+    <item>
       <title>Securing a containerized Flask API with Let&#39;s Encrypt Certificates</title>
       <link>https://mohamedkari.github.io/blog.mkari.de/posts/secure-apis/</link>
       <pubDate>Wed, 18 Nov 2020 00:00:00 +0000</pubDate>
