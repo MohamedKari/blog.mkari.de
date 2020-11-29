@@ -58,8 +58,8 @@
     <div>
       <div class="c-time">
         Posted on
-<time datetime="2020-11-18T00:00:00Z">
-  Nov 18, 2020
+<time datetime="2020-11-29T00:00:00Z">
+  Nov 29, 2020
 </time>
 
       </div>
@@ -139,7 +139,7 @@ export <span style="color:#66d9ef">$(</span>cat .env |grep <span style="color:#e
 </ol>
 <p>If we rely on alternative 1), then we would need to decrypt the encrypted files in version control on the build runner using the corresponding tool. However, in order to decrypt the encrypted files, we would need to use a key. And the original questions pops up: How do we get the key to the build runner? Now, there&rsquo;s only the option of GitHub Actions Secrets left. So, there&rsquo;s no way out. We need to get at least one secret to the build runner, and because GitHub manages the build runners on our behalf, we must use the built-in GitHub Actions Secrets in any case. Therefore, let&rsquo;s use only GitHub Actions Secrets and discard the idea of involving alternative 1).</p>
 <p>So how do we get our secrets to GitHub actions? We can either copy-paste them using the GitHub UI, or we can use GitHub API. Since, copy-pasting all relevant certificates is a bit tedious, let&rsquo;s opt for the API-based approach. Due to the encryption part, it&rsquo;s not easily doable using <code>curl</code>, so I&rsquo;ve been using a tiny Python CLI: <a href="https://gist.github.com/MohamedKari/d6a2a7a6cdfe5aee32a6c8eefd6029be">https://gist.github.com/MohamedKari/d6a2a7a6cdfe5aee32a6c8eefd6029be</a>.</p>
-<p>To run it, fetch the <code>gh-secrets.sh</code> file wich will create a new python virtual env, activate it, install the project&rsquo;s Python dependencies, and then fetch the python file it self.</p>
+<p>To run it, fetch and run the <code>gh-secrets.sh</code> file which will create a new python virtual env, activate it, install the project&rsquo;s Python dependencies, and then fetch the python file it self.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">bash &lt;<span style="color:#f92672">(</span>curl -S https://gist.githubusercontent.com/MohamedKari/d6a2a7a6cdfe5aee32a6c8eefd6029be/raw/gh-secrets.sh<span style="color:#f92672">)</span>
 source .gh-secrets/bin/activate
 </code></pre></div><p>So, let&rsquo;s get the certificates and key over</p>
@@ -234,7 +234,7 @@ python github-secrets.py set $REPO_OWNER $REPO_NAME $DOMAIN_NAME $DOMAIN_NAME
 </ul>
 <h1 id="conclusion">Conclusion</h1>
 <p>Gotta love CI/CD.
-<img src="github-actios-ui.png" alt=""></p>
+<img src="github-actions-ui.png" alt=""></p>
 
   </section>
   <footer>
@@ -243,12 +243,11 @@ python github-secrets.py set $REPO_OWNER $REPO_NAME $DOMAIN_NAME $DOMAIN_NAME
       <div class="c-pagination__ctrl">
         <div class="c-pagination__newer">
           
-          <a href="https://mohamedkari.github.io/blog.mkari.de/posts/mlops/">Newer</a>
           
         </div>
         <div class="c-pagination__older">
           
-          <a href="https://mohamedkari.github.io/blog.mkari.de/posts/secure-apis/">Older</a>
+          <a href="https://mohamedkari.github.io/blog.mkari.de/posts/mlops/">Older</a>
           
         </div>
       </div>
