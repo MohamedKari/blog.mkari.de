@@ -1,6 +1,6 @@
 ---
 title: "Standard Effects Analysis in Within-Subject Study Designs with SPSS and Python"
-draft: True
+draft: False
 ---
 
 # Problem Setup
