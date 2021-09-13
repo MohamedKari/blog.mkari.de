@@ -81,5 +81,15 @@ As a MacBook user, this becomes &amp;ldquo;interesting&amp;rdquo;. Of course, Do
       <description>The problem of storing large volumes of unstructured datasets Data preprocessing is a vital part of machine learning workflows. However, the story starts even earlier. Even before versioning or labelling data, we have to store the data we want learn from. This quickly becomes a non-trivial task in deep-learning problems where we often operate on non-tabular data such as images resulting in terabyte-scale dataset sizes such as the Waymo dataset for example.</description>
     </item>
     
+    <item>
+      <title>Standard Effects Analysis in Within-Subject Study Designs with SPSS and Python</title>
+      <link>https://mohamedkari.github.io/blog.mkari.de/posts/within-subject-analysis/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://mohamedkari.github.io/blog.mkari.de/posts/within-subject-analysis/</guid>
+      <description>Problem Setup &amp;ldquo;The purpose of a repeated measures designs is to determine the effect of different experimental conditions on a dependent variable&amp;rdquo; (Rutherford 2001, p. 61) from measures taken on the same subject under these different conditions.
+Let&amp;rsquo;s assume we follow a within-subject design, measuring the dependent variable &amp;ldquo;Duration&amp;rdquo; (or the mean of Duration across multiple repetitions) across 7 different participants under the the independent variables &amp;ldquo;Distance&amp;rdquo; and &amp;ldquo;Size&amp;rdquo;. Distance has 3 levels: &amp;ldquo;Far&amp;rdquo;, &amp;ldquo;Mid&amp;rdquo;, &amp;ldquo;Near&amp;rdquo;.</description>
+    </item>
+    
   </channel>
 </rss>
