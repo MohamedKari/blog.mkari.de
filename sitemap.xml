@@ -1,63 +1,39 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  
   <url>
     <loc>https://mohamedkari.github.io/blog.mkari.de/</loc>
     <lastmod>2020-11-29T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mohamedkari.github.io/blog.mkari.de/posts/single-docker-host-cicd/</loc>
     <lastmod>2020-11-29T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mohamedkari.github.io/blog.mkari.de/posts/</loc>
     <lastmod>2020-11-29T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mohamedkari.github.io/blog.mkari.de/posts/mlops/</loc>
     <lastmod>2020-11-23T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mohamedkari.github.io/blog.mkari.de/posts/secure-apis/</loc>
     <lastmod>2020-11-18T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mohamedkari.github.io/blog.mkari.de/posts/glx-on-mac/</loc>
     <lastmod>2020-11-16T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mohamedkari.github.io/blog.mkari.de/posts/spark-on-k8s/</loc>
     <lastmod>2020-10-06T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mohamedkari.github.io/blog.mkari.de/posts/reproducible-ml-models-using-docker/</loc>
     <lastmod>2020-07-05T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mohamedkari.github.io/blog.mkari.de/posts/remote-docker-for-ml/</loc>
     <lastmod>2020-06-22T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mohamedkari.github.io/blog.mkari.de/posts/storage/</loc>
     <lastmod>2020-06-20T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mohamedkari.github.io/blog.mkari.de/categories/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mohamedkari.github.io/blog.mkari.de/tags/</loc>
   </url>
-  
 </urlset>
