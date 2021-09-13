@@ -5,6 +5,9 @@ date: 2021-09-13
 author: Mo Kari
 ---
 
+> On a related note, for questionnaire analysis check-out my repo under https://github.com/MohamedKari/questionnaire-analysis.
+
+
 # Problem Setup
 "The purpose of a repeated measures designs is to determine the effect of different experimental conditions on a dependent
 variable" (Rutherford 2001, p. 61) from measures taken on the same subject under these different conditions. 
