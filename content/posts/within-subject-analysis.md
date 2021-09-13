@@ -1,6 +1,7 @@
 ---
 title: "Standard Effects Analysis in Within-Subject Study Designs with SPSS and Python"
 draft: False
+date: 2021-09-13
 ---
 
 # Problem Setup
