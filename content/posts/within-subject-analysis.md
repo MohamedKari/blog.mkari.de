@@ -1,5 +1,5 @@
 ---
-title: "Standard Effects Analysis in Repeated-Measures Study Designs with SPSS and Python"
+title: "Standard Effects Analysis in Within-Subject Study Designs with SPSS and Python"
 draft: True
 ---
 
