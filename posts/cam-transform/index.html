@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+  
+  <title>Camera Conventions, Transforms, and Conversions</title>
+  <meta property="og:title" content="Camera Conventions, Transforms, and Conversions" />
+  <meta name="twitter:title" content="Camera Conventions, Transforms, and Conversions" />
+  
+
+  
+
+  <meta name="author" content="Mo Kari"/>
+  <meta property="og:site_name" content="" />
+  <meta property="og:url" content="https://mohamedkari.github.io/blog.mkari.de/posts/cam-transform/" />
+
+  
+  <meta name="twitter:card" content="summary" />
+
+  
+
+  
+  <meta property="og:type" content="article" />
+  
+  
+  
+  <meta name="generator" content="Hugo 0.95.0" />
+  
+  
+
+  <link rel="stylesheet" href="https://mohamedkari.github.io/blog.mkari.de/css/style.css" />
+  
+  
+  
+  <script type="text/javascript" src="https://mohamedkari.github.io/blog.mkari.de/js/bundle.js"></script>
+  
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js"></script>
+  <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          renderMathInElement(document.body, {
+              delimiters: [
+                  {left: "$$", right: "$$", display: true},
+                  {left: "$", right: "$", display: false}
+              ]
+          });
+      });
+  </script>
+</head>
+
+<body>
+  <a href="#main" class="skip-link p-screen-reader-text">Skip to content</a>
+  <svg xmlns="http://www.w3.org/2000/svg" style="display: none;" aria-hidden="true"> <symbol id="icon-500px" viewBox="0 0 16 16"><g> <path d="M3.953 10.512a5.24 5.24 0 0 0 6.996 3.141c.625-.262 1.184-.641 1.666-1.122s.859-1.041 1.122-1.666c.272-.647.412-1.331.412-2.037s-.137-1.394-.412-2.037c-.262-.625-.641-1.184-1.122-1.666s-1.041-.859-1.666-1.122a5.226 5.226 0 0 0-2.037-.413c-.716 0-1.431.144-2.066.413-.509.216-1.372.769-1.875 1.291l-.003.003V.984h7.241c.262-.003.262-.372.262-.491 0-.122 0-.487-.266-.491H4.377a.343.343 0 0 0-.344.341v6.066c0 .197.244.338.472.384.444.094.544-.047.653-.197l.016-.019c.166-.247.681-.766.688-.772a4.262 4.262 0 0 1 3.037-1.25c1.147 0 2.222.444 3.028 1.25a4.245 4.245 0 0 1 1.256 3.019 4.236 4.236 0 0 1-1.25 3.019 4.336 4.336 0 0 1-3.047 1.25 4.136 4.136 0 0 1-2.159-.597l.003-3.688c0-.491.213-1.028.572-1.431a2.09 2.09 0 0 1 1.588-.716c.594 0 1.15.225 1.566.634.409.406.637.95.637 1.528a2.179 2.179 0 0 1-2.206 2.197c-.238 0-.672-.106-.691-.109-.25-.075-.356.272-.391.387-.134.441.069.528.109.541.397.125.659.147 1.003.147a3.173 3.173 0 0 0 3.169-3.169c0-1.734-1.422-3.144-3.166-3.144-.856 0-1.659.328-2.263.919-.575.566-.903 1.319-.903 2.069v.019c-.003.094-.003 2.306-.006 3.031l-.003-.003c-.328-.363-.653-.919-.869-1.488-.084-.222-.275-.184-.534-.103-.125.034-.469.141-.391.394zm3.722-.865c0 .106.097.2.156.253l.019.019c.1.097.194.147.281.147a.181.181 0 0 0 .131-.05c.044-.041.537-.544.588-.591l.553.55c.05.056.106.088.172.088.088 0 .184-.053.284-.156.238-.244.119-.375.063-.438l-.559-.559.584-.588c.128-.137.016-.284-.097-.397-.162-.162-.322-.206-.422-.112l-.581.581-.588-.588a.16.16 0 0 0-.113-.047c-.078 0-.172.053-.275.156-.181.181-.219.306-.125.406l.588.584-.584.584c-.053.05-.078.103-.075.156zm1.278-7.931c-.938 0-1.938.191-2.669.506a.207.207 0 0 0-.134.181.753.753 0 0 0 .069.337c.047.116.166.425.4.334a6.689 6.689 0 0 1 2.334-.444 6.35 6.35 0 0 1 2.469.497c.622.263 1.206.644 1.844 1.194a.22.22 0 0 0 .147.059c.125 0 .244-.122.347-.237.169-.191.287-.35.119-.509a6.858 6.858 0 0 0-2.1-1.356 7.326 7.326 0 0 0-2.825-.563zM14.006 13.3c-.113-.113-.209-.178-.294-.203s-.162-.006-.222.053l-.056.056a6.32 6.32 0 0 1-6.938 1.356 6.336 6.336 0 0 1-2.013-1.356 6.046 6.046 0 0 1-1.356-2.012c-.288-.713-.381-1.247-.413-1.422-.003-.016-.006-.028-.006-.037-.041-.206-.231-.222-.503-.178-.112.019-.459.072-.428.319v.006a7.261 7.261 0 0 0 2.04 3.994 7.266 7.266 0 0 0 10.288 0l.059-.059c.069-.084.134-.225-.159-.516z"/> </g></symbol> <symbol id="icon-codepen" viewBox="0 0 16 16"><g> <path d="M14.777 5.751l-7-4.667a.5.5 0 0 0-.555 0l-7 4.667a.501.501 0 0 0-.223.416v4.667c0 .167.084.323.223.416l7 4.667a.5.5 0 0 0 .554 0l7-4.667a.501.501 0 0 0 .223-.416V6.167a.501.501 0 0 0-.223-.416zM7.5 10.232L4.901 8.5 7.5 6.768 10.099 8.5 7.5 10.232zM8 5.899V2.434l5.599 3.732L11 7.898l-3-2zm-1 0l-3 2-2.599-1.732L7 2.435V5.9zM3.099 8.5L1 9.899V7.101L3.099 8.5zM4 9.101l3 2v3.465l-5.599-3.732L4 9.102zm4 2l3-2 2.599 1.732L8 14.565V11.1zM11.901 8.5L14 7.101v2.798L11.901 8.5z"/> </g></symbol> <symbol id="icon-dribbble" viewBox="0 0 16 16"><g> <path d="M8 16c-4.412 0-8-3.588-8-8s3.587-8 8-8c4.412 0 8 3.587 8 8s-3.588 8-8 8zm6.747-6.906c-.234-.075-2.116-.634-4.256-.291a29.7 29.7 0 0 1 1.328 4.872 6.845 6.845 0 0 0 2.928-4.581zM10.669 14.3c-.103-.6-.497-2.688-1.456-5.181-.016.006-.031.009-.044.016-3.856 1.344-5.241 4.016-5.362 4.266a6.807 6.807 0 0 0 6.863.9zm-7.747-1.722c.156-.266 2.031-3.369 5.553-4.509a7.04 7.04 0 0 1 .269-.081 24.04 24.04 0 0 0-.553-1.159c-3.409 1.022-6.722.978-7.022.975-.003.069-.003.138-.003.209 0 1.753.666 3.356 1.756 4.566zM1.313 6.609c.306.003 3.122.016 6.319-.831a43.092 43.092 0 0 0-2.534-3.953 6.854 6.854 0 0 0-3.784 4.784zM6.4 1.366a36.612 36.612 0 0 1 2.55 4c2.431-.909 3.459-2.294 3.581-2.469A6.799 6.799 0 0 0 6.4 1.366zm6.891 2.325c-.144.194-1.291 1.663-3.816 2.694.159.325.313.656.453.991.05.119.1.234.147.353 2.275-.284 4.534.172 4.759.219a6.816 6.816 0 0 0-1.544-4.256z"/> </g></symbol> <symbol id="icon-facebook" viewBox="0 0 16 16"><g> <path d="M9.5 3H12V0H9.5C7.57 0 6 1.57 6 3.5V5H4v3h2v8h3V8h2.5l.5-3H9V3.5c0-.271.229-.5.5-.5z"/> </g></symbol> <symbol id="icon-feed" viewBox="0 0 16 16"><g> <path d="M2.13 11.733c-1.175 0-2.13.958-2.13 2.126 0 1.174.955 2.122 2.13 2.122a2.126 2.126 0 0 0 2.133-2.122 2.133 2.133 0 0 0-2.133-2.126zM.002 5.436v3.067c1.997 0 3.874.781 5.288 2.196a7.45 7.45 0 0 1 2.192 5.302h3.08c0-5.825-4.739-10.564-10.56-10.564zM.006 0v3.068C7.128 3.068 12.924 8.87 12.924 16H16C16 7.18 8.824 0 .006 0z"/> </g></symbol> <symbol id="icon-flickr" viewBox="0 0 16 16"><g> <path d="M0 8.5a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0zm9 0a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/> </g></symbol> <symbol id="icon-github" viewBox="0 0 16 16"><g> <path d="M8 .198a8 8 0 0 0-2.529 15.591c.4.074.547-.174.547-.385 0-.191-.008-.821-.011-1.489-2.226.484-2.695-.944-2.695-.944-.364-.925-.888-1.171-.888-1.171-.726-.497.055-.486.055-.486.803.056 1.226.824 1.226.824.714 1.223 1.872.869 2.328.665.072-.517.279-.87.508-1.07-1.777-.202-3.645-.888-3.645-3.954 0-.873.313-1.587.824-2.147-.083-.202-.357-1.015.077-2.117 0 0 .672-.215 2.201.82A7.672 7.672 0 0 1 8 4.066c.68.003 1.365.092 2.004.269 1.527-1.035 2.198-.82 2.198-.82.435 1.102.162 1.916.079 2.117.513.56.823 1.274.823 2.147 0 3.073-1.872 3.749-3.653 3.947.287.248.543.735.543 1.481 0 1.07-.009 1.932-.009 2.195 0 .213.144.462.55.384A8 8 0 0 0 8.001.196z"/> </g></symbol> <symbol id="icon-gitlab" viewBox="0 0 28 28"><g> <path d="M1.625 11.031L14 26.89.437 17.046a1.092 1.092 0 0 1-.391-1.203l1.578-4.813zm7.219 0h10.313L14.001 26.89zM5.75 1.469l3.094 9.562H1.625l3.094-9.562a.548.548 0 0 1 1.031 0zm20.625 9.562l1.578 4.813a1.09 1.09 0 0 1-.391 1.203l-13.563 9.844 12.375-15.859zm0 0h-7.219l3.094-9.562a.548.548 0 0 1 1.031 0z"/> </g></symbol> <symbol id="icon-google-plus" viewBox="0 0 16 16"><g> <path d="M5.091 7.147v1.747h2.888c-.116.75-.872 2.197-2.888 2.197-1.737 0-3.156-1.441-3.156-3.216s1.419-3.216 3.156-3.216c.991 0 1.65.422 2.028.784L8.5 4.112c-.888-.828-2.037-1.331-3.409-1.331C2.275 2.784 0 5.059 0 7.875s2.275 5.091 5.091 5.091c2.937 0 4.888-2.066 4.888-4.975 0-.334-.037-.591-.081-.844H5.092zM16 7h-1.5V5.5H13V7h-1.5v1.5H13V10h1.5V8.5H16z"/> </g></symbol> <symbol id="icon-instagram" viewBox="0 0 22 22"><g> <path d="M15.445 0H6.554A6.559 6.559 0 0 0 0 6.554v8.891A6.559 6.559 0 0 0 6.554 22h8.891a6.56 6.56 0 0 0 6.554-6.555V6.554A6.557 6.557 0 0 0 15.445 0zm4.342 15.445a4.343 4.343 0 0 1-4.342 4.342H6.554a4.341 4.341 0 0 1-4.341-4.342V6.554a4.34 4.34 0 0 1 4.341-4.341h8.891a4.342 4.342 0 0 1 4.341 4.341l.001 8.891z"/> <path d="M11 5.312A5.693 5.693 0 0 0 5.312 11 5.694 5.694 0 0 0 11 16.688 5.694 5.694 0 0 0 16.688 11 5.693 5.693 0 0 0 11 5.312zm0 9.163a3.475 3.475 0 1 1-.001-6.95 3.475 3.475 0 0 1 .001 6.95zm5.7-10.484a1.363 1.363 0 1 1-1.364 1.364c0-.752.51-1.364 1.364-1.364z"/> </g></symbol> <symbol id="icon-linkedin" viewBox="0 0 16 16"><g> <path d="M6 6h2.767v1.418h.04C9.192 6.727 10.134 6 11.539 6 14.46 6 15 7.818 15 10.183V15h-2.885v-4.27c0-1.018-.021-2.329-1.5-2.329-1.502 0-1.732 1.109-1.732 2.255V15H6V6zM1 6h3v9H1V6zM4 3.5a1.5 1.5 0 1 1-3.001-.001A1.5 1.5 0 0 1 4 3.5z"/> </g></symbol> <symbol id="icon-mail" viewBox="0 0 22 18"><g> <path fill="#000" d="M0 17.225V.776h22v16.447H0v.002zm3.011-1.815h15.978l-5.111-5.115L11 13.179l-2.877-2.883-5.112 5.114zm-1.216-1.275l5.077-5.09L1.795 3.98v10.155zm13.332-5.09l5.079 5.09V3.979l-5.079 5.066zm-4.126 1.588l8.022-8.027-16.045-.001 8.023 8.028z"/> </g></symbol> <symbol id="icon-medium" viewBox="0 0 24 24"><g> <path d="M22.085 4.733L24 2.901V2.5h-6.634l-4.728 11.768L7.259 2.5H.303v.401L2.54 5.594c.218.199.332.49.303.783V16.96c.069.381-.055.773-.323 1.05L0 21.064v.396h7.145v-.401l-2.52-3.049a1.244 1.244 0 0 1-.347-1.05V7.806l6.272 13.659h.729l5.393-13.659v10.881c0 .287 0 .346-.188.534l-1.94 1.877v.402h9.412v-.401l-1.87-1.831a.556.556 0 0 1-.214-.534V5.267a.554.554 0 0 1 .213-.534z"/> </g></symbol> <symbol id="icon-npm" viewBox="0 0 16 16"><g> <path d="M0 0v16h16V0H0zm13 13h-2V5H8v8H3V3h10v10z"/> </g></symbol> <symbol id="icon-pinterest" viewBox="0 0 16 16"><g> <path d="M8 1.069a6.93 6.93 0 0 0-2.525 13.384c-.059-.547-.116-1.391.025-1.988.125-.541.813-3.444.813-3.444s-.206-.416-.206-1.028c0-.963.559-1.684 1.253-1.684.591 0 .878.444.878.975 0 .594-.378 1.484-.575 2.306-.166.691.344 1.253 1.025 1.253 1.231 0 2.178-1.3 2.178-3.175 0-1.659-1.194-2.819-2.894-2.819-1.972 0-3.128 1.478-3.128 3.009 0 .597.228 1.234.516 1.581.056.069.066.128.047.2a95.89 95.89 0 0 1-.194.787c-.031.128-.1.153-.231.094-.866-.403-1.406-1.669-1.406-2.684 0-2.188 1.587-4.194 4.578-4.194 2.403 0 4.272 1.712 4.272 4.003 0 2.388-1.506 4.313-3.597 4.313-.703 0-1.362-.366-1.588-.797 0 0-.347 1.322-.431 1.647-.156.603-.578 1.356-.862 1.816a6.93 6.93 0 0 0 8.984-6.622 6.931 6.931 0 0 0-6.931-6.934z"/> </g></symbol> <symbol id="icon-search" viewBox="0 0 16 16"><g> <path d="M15.504 13.616l-3.79-3.223c-.392-.353-.811-.514-1.149-.499a6 6 0 1 0-.672.672c-.016.338.146.757.499 1.149l3.223 3.79c.552.613 1.453.665 2.003.115s.498-1.452-.115-2.003zM6 10a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/> </g></symbol> <symbol id="icon-tumblr" viewBox="0 0 16 16"><g> <path d="M9.001 7v3.659c0 .928-.012 1.463.086 1.727.098.262.342.534.609.691.354.212.758.318 1.214.318.81 0 1.289-.107 2.09-.633v2.405a9.089 9.089 0 0 1-1.833.639A7.93 7.93 0 0 1 9.369 16a4.9 4.9 0 0 1-1.725-.276 4.195 4.195 0 0 1-1.438-.79c-.398-.343-.672-.706-.826-1.091s-.23-.944-.23-1.676V6.556H3.003V4.29c.628-.204 1.331-.497 1.778-.877a4.386 4.386 0 0 0 1.08-1.374C6.133 1.505 6.32.825 6.422 0h2.579v4H13v3H9.001z"/> </g></symbol> <symbol id="icon-twitter" viewBox="0 0 16 16"><g> <path d="M16 3.538a6.461 6.461 0 0 1-1.884.516 3.301 3.301 0 0 0 1.444-1.816 6.607 6.607 0 0 1-2.084.797 3.28 3.28 0 0 0-2.397-1.034 3.28 3.28 0 0 0-3.197 4.028 9.321 9.321 0 0 1-6.766-3.431 3.284 3.284 0 0 0 1.015 4.381A3.301 3.301 0 0 1 .643 6.57v.041A3.283 3.283 0 0 0 3.277 9.83a3.291 3.291 0 0 1-1.485.057 3.293 3.293 0 0 0 3.066 2.281 6.586 6.586 0 0 1-4.862 1.359 9.286 9.286 0 0 0 5.034 1.475c6.037 0 9.341-5.003 9.341-9.341 0-.144-.003-.284-.009-.425a6.59 6.59 0 0 0 1.637-1.697z"/> </g></symbol> <symbol id="icon-vimeo" viewBox="0 0 16 16"><g> <path d="M15.994 4.281c-.072 1.556-1.159 3.691-3.263 6.397-2.175 2.825-4.016 4.241-5.522 4.241-.931 0-1.722-.859-2.366-2.581-.431-1.578-.859-3.156-1.291-4.734-.478-1.722-.991-2.581-1.541-2.581-.119 0-.538.253-1.256.753l-.753-.969c.791-.694 1.569-1.388 2.334-2.081 1.053-.909 1.844-1.387 2.372-1.438 1.244-.119 2.013.731 2.3 2.553.309 1.966.525 3.188.647 3.666.359 1.631.753 2.447 1.184 2.447.334 0 .838-.528 1.509-1.588.669-1.056 1.028-1.862 1.078-2.416.097-.912-.262-1.372-1.078-1.372a2.98 2.98 0 0 0-1.184.263c.787-2.575 2.287-3.825 4.506-3.753 1.641.044 2.416 1.109 2.322 3.194z"/> </g></symbol> <symbol id="icon-wordpress" viewBox="0 0 16 16"><g> <path d="M2 8c0 2.313 1.38 4.312 3.382 5.259L2.52 5.622A5.693 5.693 0 0 0 2 8zm10.05-.295c0-.722-.266-1.222-.495-1.612-.304-.482-.589-.889-.589-1.371 0-.537.418-1.037 1.008-1.037.027 0 .052.003.078.005A6.064 6.064 0 0 0 8 2.156 6.036 6.036 0 0 0 2.987 4.79c.141.004.274.007.386.007.627 0 1.599-.074 1.599-.074.323-.018.361.444.038.482 0 0-.325.037-.687.055l2.185 6.33 1.313-3.835-.935-2.495a12.304 12.304 0 0 1-.629-.055c-.323-.019-.285-.5.038-.482 0 0 .991.074 1.58.074.627 0 1.599-.074 1.599-.074.323-.018.362.444.038.482 0 0-.326.037-.687.055l2.168 6.282.599-1.947c.259-.809.457-1.389.457-1.889zm-3.945.806l-1.8 5.095a6.148 6.148 0 0 0 3.687-.093.52.52 0 0 1-.043-.081L8.105 8.511zm5.16-3.315c.026.186.04.386.04.601 0 .593-.114 1.259-.456 2.093l-1.833 5.16c1.784-1.013 2.983-2.895 2.983-5.051a5.697 5.697 0 0 0-.735-2.803zM8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm0 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14z"/> </g></symbol> <symbol id="icon-youtube" viewBox="0 0 16 16"><g> <path d="M15.841 4.8s-.156-1.103-.637-1.587c-.609-.637-1.291-.641-1.603-.678-2.237-.163-5.597-.163-5.597-.163h-.006s-3.359 0-5.597.163c-.313.038-.994.041-1.603.678C.317 3.697.164 4.8.164 4.8S.005 6.094.005 7.391v1.213c0 1.294.159 2.591.159 2.591s.156 1.103.634 1.588c.609.637 1.409.616 1.766.684 1.281.122 5.441.159 5.441.159s3.363-.006 5.6-.166c.313-.037.994-.041 1.603-.678.481-.484.637-1.588.637-1.588s.159-1.294.159-2.591V7.39c-.003-1.294-.162-2.591-.162-2.591zm-9.494 5.275V5.578l4.322 2.256-4.322 2.241z"/> </g></symbol></svg>
+  <header class="l-header" style="max-width: 720px; margin: auto; text-align: left; padding: 20px 0 0 0 ;">
+    
+    <p class="home-button"><a href="https://mohamedkari.github.io/blog.mkari.de/" class="p-title__link">← Back to home</a></p>
+    <p class="c-title p-title"><a href="https://mohamedkari.github.io/blog.mkari.de/" class="p-title__link"></a></p>
+    
+    
+  </header>
+
+  <main id="main" class="l-main">
+
+
+<article class="p-article">
+  <header>
+    <h1>Camera Conventions, Transforms, and Conversions</h1>
+    <div>
+      <div class="c-time">
+        Posted on
+<time datetime="2024-06-22T00:00:00Z">
+  Jun 22, 2024
+</time>
+
+      </div>
+      
+      <div class="c-time">
+        by Mo Kari
+      </div>
+    </div>
+  </header>
+  
+  <section id="js-article" class="p-article__body">
+    <p><em>There is 48 combinatoric of assigning coordinate frame axes (assign right/left, up/down, and forward/backward to x, y, z, which is $6 \times 4 \times 2$, and it seems as if our disciplines give their best, trying to use all of them.
+Unfortunately, this means, there is $48\times47=2556$ ways of converting between coordinate frames, and each of them is dangerously close to a bug.
+As if that were not enough, words like extrinsics or pose matrix are used in different meanings, adding to the confusion that inherently surrounds transforms and rotations.
+My coordinate frame convention conversion tool (<a href="https://mkari.de/coord-converter/">https://mkari.de/coord-converter/</a>) simplifies this process radically.
+In this blog post, I discuss the underlying background of transforms and the &ldquo;manual&rdquo; process of doing point and especially rotation conversions, and the tasks that typically follow or are associated with it.</em></p>
+<h1 id="table-of-contents">Table of Contents</h1>
+<hr>
+<ul>
+<li><a href="#table-of-contents">Table of Contents</a></li>
+<li><a href="#step-1-understanding-coordinate-frame-conventions">Step 1: Understanding coordinate frame conventions</a></li>
+<li><a href="#step-2-understanding-camera-transforms">Step 2: Understanding camera transforms</a>
+<ul>
+<li><a href="#2a-starting-with-a-world-aligned-camera">2a: Starting with a world-aligned camera</a></li>
+<li><a href="#2b-understanding-camera-translation--specifiying-cam-to-world-translation">2b: Understanding camera translation &amp; specifiying cam-to-world translation</a></li>
+<li><a href="#2c-understanding-camera-rotation--specifying-the-cam-to-world-rotation-from-an-orthonormal-basis">2c: Understanding camera rotation &amp; specifying the cam-to-world rotation from an orthonormal basis</a></li>
+<li><a href="#2d-obtaining-the-camera-pose-matrix-synonymously-the-cam-to-world-matrix">2d: Obtaining the camera pose matrix (synonymously: the cam-to-world matrix)</a>
+<ul>
+<li><a href="#alternative-1-pre-multiplying-the-cam-to-world-rotation-and-translation-in-the-correct-order">Alternative 1: Pre-multiplying the cam-to-world rotation and translation in the correct order</a></li>
+<li><a href="#alternative-2-plugging-together-the-pose-matrix-directly">Alternative 2: Plugging together the pose matrix directly</a></li>
+</ul>
+</li>
+<li><a href="#2e-obtaining-the-camera-extrinsics-matrix-synonymously-the-world-to-cam-matrix-for-the-computer-graphics--projection-pipeline">2e: Obtaining the camera extrinsics matrix (synonymously: the world-to-cam matrix for the computer graphics &amp; projection pipeline)</a>
+<ul>
+<li><a href="#alternative-1-inverting-the-cam-to-world-matrix-synonymously-inverting-the-pose-matrix">Alternative 1: Inverting the cam-to-world matrix (synonymously: inverting the pose matrix)</a></li>
+<li><a href="#alternative-2-pre-multiplying-the-inverses-of-the-cam-to-world-rotation-and-cam-to-world-translation-in-the-correct-order">Alternative 2: Pre-multiplying the inverses of the cam-to-world rotation and cam-to-world translation in the correct order</a></li>
+<li><a href="#alternative-3-plugging-together-the-extrinsics-matrix-directly">Alternative 3: Plugging together the extrinsics matrix directly</a></li>
+</ul>
+</li>
+<li><a href="#2f-summary--cam-transform-convention">2f: Summary &amp; cam transform convention</a></li>
+</ul>
+</li>
+<li><a href="#step-3-understanding-properties-and-computing-rules-with-transforms-and-rotation-matrices">Step 3: Understanding properties and computing rules with transforms and rotation matrices</a>
+<ul>
+<li><a href="#properties-of-rotations">Properties of rotations</a>
+<ul>
+<li><a href="#definition">Definition</a></li>
+<li><a href="#further-properties">Further properties</a></li>
+<li><a href="#interesting-implication-of-orthonormality">Interesting implication of orthonormality</a></li>
+<li><a href="#interesting-implication-of-detr--1">Interesting implication of $det(R) = +1$</a></li>
+</ul>
+</li>
+<li><a href="#properties-of-translations">Properties of translations</a></li>
+<li><a href="#properties-translational-and-rotational-transformation-sequences">Properties translational and rotational transformation sequences</a>
+<ul>
+<li><a href="#r-times-t-neq-r_3times3-t_3times1-----but-----t-times-r--r_3times3-t_3times1">$R \times T \neq [R_{3\times3} T_{3\times1}]$ &mdash; BUT &mdash; $T \times R = [R_{3\times3} T_{3\times1}]$</a></li>
+<li><a href="#r-times-t--t-1-times-r-1-1">$R \times T = (T^{-1} \times R^{-1})^{-1}$</a></li>
+<li><a href="#associativity-but-no-commutativity">Associativity but no commutativity</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#converting-between-coordinate-system-conventions">Converting between coordinate system conventions</a>
+<ul>
+<li><a href="#step-1-visualizing-world-and-camera-axes">Step 1: Visualizing world and camera axes</a></li>
+<li><a href="#step-2-specifying-a-convention-transform">Step 2: Specifying a convention transform</a></li>
+<li><a href="#step-3-point-conversion">Step 3: Point conversion</a></li>
+<li><a href="#step-4-rotation-conversion">Step 4: Rotation conversion</a>
+<ul>
+<li><a href="#converting-incoming-rotation-matrices">Converting incoming rotation matrices</a>
+<ul>
+<li><a href="#sub-step-a-obtaining-the-convention-transform-from-source-to-target">Sub-Step A: Obtaining the convention transform from source to target</a></li>
+<li><a href="#sub-step-b-understanding-a-rotation-in-the-source-coordinate-system">Sub-Step B: Understanding a rotation in the source coordinate system</a></li>
+<li><a href="#sub-step-c-computing-r_textned_0text-to-ned_1">Sub-Step C: Computing $R_{\text{NED}_0\text{-to-NED}_1}$</a></li>
+</ul>
+</li>
+<li><a href="#converting-incoming-euler-angles">Converting incoming Euler angles</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#conclusion">Conclusion</a></li>
+</ul>
+<hr>
+<p>This post serves my personal primer whenever I start a new cross-convention 3D projects (e.g., capturing poses with sensors in one convention and processing them in a 3D engine with a different convention).
+As a refresher, it&rsquo;s also always good to take a look at the lectures on transforms by Prof. Kenneth Joy (<a href="https://www.youtube.com/playlist?list=PL_w_qWAQZtAZhtzPI5pkAtcUVgmzdAP8g)">https://www.youtube.com/playlist?list=PL_w_qWAQZtAZhtzPI5pkAtcUVgmzdAP8g)</a>.</p>
+<h1 id="step-1-understanding-coordinate-frame-conventions">Step 1: Understanding coordinate frame conventions</h1>
+<p>Of the above mentioned 48 possible conventions, there are some conventions that are used quite frequently.
+In computer graphics, the our <em>2D plane</em> of interest is the image, thus the plane axes are denominated with x and y, while z refers to depth (hence z-fighting, z-buffering, etc.) and thus is assigned the forward or backward direction.
+In navigation (and thus aviation), our <em>2D plane</em> of interest is the earth surface, as we often think about navigating 2D maps, and thus x and y refer to forward/backward and left/right, whereas z refers to the up/down direction.
+I have encountered the following conventions in the past years, maintaining the below table as a quick cheat sheet.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>coordinate system: handedness</th>
+<th>camera: forward direction</th>
+<th>camera: up direction</th>
+<th>equivalent notation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unity, East-Up-North(EUN)</td>
+<td>left-handed</td>
+<td>looks along the positive z-axis</td>
+<td>positive y</td>
+<td>x right,   y up,    z forward</td>
+</tr>
+<tr>
+<td>ARKit/OpenGl/Blender/InstantNGP/Nerfstudio</td>
+<td>right-handed</td>
+<td>looks along the negative z-axis</td>
+<td>positive y</td>
+<td>x right,   y up,    z backward</td>
+</tr>
+<tr>
+<td>Open3D, opencv, Top-Secret</td>
+<td>right-handed</td>
+<td>looks along the positive z-axis</td>
+<td>negative y</td>
+<td>x right,   y down,  z forward</td>
+</tr>
+<tr>
+<td>PyTorch3D</td>
+<td>right-handed</td>
+<td>looks along the positive z-axis</td>
+<td>positive y</td>
+<td>x left,    y up,    z forward</td>
+</tr>
+<tr>
+<td>DJI MobileSDK Body Coordinate System</td>
+<td>right-handed</td>
+<td>looks along the positive x-axis (roll axis)</td>
+<td>negative z (yaw axis)</td>
+<td>x forward, y right, z down</td>
+</tr>
+<tr>
+<td>Local Tangent Plane Coordinate System: NED</td>
+<td>right-handed</td>
+<td>looks along the positive x-axis (north axis)</td>
+<td>negative z (down axis)</td>
+<td>x forward, y right, z down</td>
+</tr>
+<tr>
+<td>ECEF Earth Coordinate System</td>
+<td>right-handed</td>
+<td>no cams</td>
+<td>no cams</td>
+<td>no cams</td>
+</tr>
+<tr>
+<td>ECEF Earth Coordinate System with NED cam</td>
+<td>right-handed</td>
+<td>looks along the positive x-axis (Null island)</td>
+<td>to South Pole: negative z</td>
+<td>x forward, y right, z down</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table: Coordinate system conventions and camera conventions in different frameworks</strong></p>
+<p>To specify our coordinate frame convention, we need to indicate three pieces of information as we have three axes.
+One way of indicating the convention is specifying x as right or left, y as up or down, and z back or forward.
+This is my preferred way of indicating a convention.
+An alternative way of indicating the convention is specifying only two axes explicitly and providing the handedness of the coordinate frame so we can derive the missing axis by use the corresponding hand&rsquo;s rule.</p>
+<p>The handedness of a coordinate system dictates two principles:
+First, when aligning the thumb with x and the index finger with y, it tells us the positive direction of z, i.e., the direction of the cross-product of x and y.
+Second, when alinging the thumb with the positive direction of an axis, curling the fingers tells us the direction of the positive rotation around that axis (&ldquo;grip rule&rdquo; or &ldquo;cup rule&rdquo;).
+In a left-handed coordinate system, we use the left hand for both principles.
+In a right-handed system, we use the right hand for both.</p>
+<p>In some contexts, each axes have a special name:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>x</th>
+<th>y</th>
+<th>z</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DJI Body Coordinate System</td>
+<td>roll axis (forward)</td>
+<td>pitch axis (right)</td>
+<td>yaw axis (down)</td>
+</tr>
+<tr>
+<td>LTP/NED Ground Coorindates</td>
+<td>North     (forward)</td>
+<td>East       (right)</td>
+<td>Down     (down)</td>
+</tr>
+<tr>
+<td>ECEF Body Coordinate System</td>
+<td>center-to-Null-Island</td>
+<td>center-to-North-Pole</td>
+<td>center-to-0N90E</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table: Axes names</strong></p>
+<h1 id="step-2-understanding-camera-transforms">Step 2: Understanding camera transforms</h1>
+<p>Before getting to <em>convert</em> between different coordinate conventions, let&rsquo;s begin at the beginning, i.e., using a single coordinate convention.</p>
+<h2 id="2a-starting-with-a-world-aligned-camera">2a: Starting with a world-aligned camera</h2>
+<p>The most basic thing in a coordinate frame is easy to understand: describe the position of a point $p = (x, y, z)$, which means go <em>x</em> units along the x axis, etc.
+However, it gets a bit more difficult when we use the coordinate frame to describe <em>transformations</em> of either of point clouds or the camera.
+Most importantly, let&rsquo;s consider <em>rigid</em> transformations, i.e., point motion or camera motion, and here let&rsquo;s start with camera motion.</p>
+<p>For example, ARKit uses a right-handed coordinate system with x right, y up, z backward, i.e., it is right-handed.
+Consider an initial state where the smartphone is in landscape mode with the phone top to the left, and the world coordinate frame is reset, so that world coordinate frame and camera coordinate frame are perfectly aligned.
+Then, the camera looks down the negative z-axis.
+The camera&rsquo;s up direction points along the positive y-axis.
+Thus (using the right-hand rule), the x-axis points to the right.
+The camera&rsquo;s translation with respect to the world coordinate system is $t_w=(0, 0, 0)$.
+The camera&rsquo;s rotation with respect to the world coordinate system is</p>
+<p>
+
+$$
+R_w=q(0,0,0;1) = 
+\begin{pmatrix}
+1 & 0 & 0\\
+0 & 1 & 0\\
+0 & 0 & 1
+\end{pmatrix}.
+$$
+
+</p>
+<p>As ARKit uses gravity to determine the world&rsquo;s up direction, any initial rotation in the world configuration about the z axis does not influence the world coordinate frame definition.
+That is, if the phone were in standard portrait mode at reset time, it would be rotated about the z axis from the start.
+The right-hand grip rule tells us, that it would be rotated in positive direction by 270 degrees when started up in standard portrait mode.</p>
+<h2 id="2b-understanding-camera-translation--specifiying-cam-to-world-translation">2b: Understanding camera translation &amp; specifiying cam-to-world translation</h2>
+<p>Imagine physically mounting a plastic coordinate frame to the iPhone in this world-aligned state.
+Now, as we translate the camera through space and rotate it, the plastic coordinate frame also moves in lock-step.
+The iPhone&rsquo;s visual-inertial odometry updates the camera translation and rotation frame by frame accordingly.</p>
+<p>As we move 1 meter forward, z decreases.
+The new camera position will be $(0, 0, -1)$.</p>
+<p>So, to numerically describe camera translation, all we need is a camera translation vector.
+The corresponding homogeneous translation matrix (with this vector directly plugged into the last column of a 4x4 identity matrix) is</p>
+<p>
+
+$$
+T=
+\begin{pmatrix}
+1 & 0 & 0 &  0\\
+0 & 1 & 0 &  0\\
+0 & 0 & 1 & -1\\
+0 & 0 & 0 &  1
+\end{pmatrix}.
+$$
+
+</p>
+<p>Adding this translation vector to the zero vector (0, 0, 0) or pre-mulitplying the homogeneous translation matrix with the homogeneous zero vector (0, 0, 0, 1), can be interpreted in two ways:</p>
+<p><strong>First</strong>, it describes <em>moving the camera and all camera-locked points</em> from $(0, 0, 0)$ to $(0, 0, -1)$ in world coordinates:</p>
+<ul>
+<li>the camera is at $(0, 0, 0)$ in world coordinates</li>
+<li>we add the translation vector $(0, 0, -1)$ to translate the camera</li>
+<li>we obtain the new camera position $(0, 0, -1)$ in world coordinates.</li>
+</ul>
+<p><strong>Second</strong>, it describes <em>converting the camera origin and all camera-locked points</em> from camera coordinates to world coordinates:</p>
+<ul>
+<li>the camera is at $(0, 0, 0)$ in camera coordinates</li>
+<li>we add the translation vector $(0, 0, -1)$ to <em>convert</em> camera coordinates to world coordinates</li>
+<li>we obtain the camera position $(0, 0, -1)$ in world coordinates.</li>
+</ul>
+<p>To summarize, there are two ways of interpreting translation (and as we will see rotation) matrices:</p>
+<ol>
+<li>&ldquo;physically moving&rdquo; a camera from one coordinate frames to the next while remaining in the same <em>world</em> coordinate system.</li>
+<li>converting a point to a different <em>notation</em> of the exact same point where each notation is dependent upon the chosen coordinate frame.</li>
+</ol>
+<p>Both notions are numerically equivalent, i.e., the same numbers result.
+They simply offer different approaches of &ldquo;thinking&rdquo; the transform operation.
+Interesting, I am under the impression that the majority of books, people and frameworks operate with the second interpretation.
+In constrast, I nearly always think of operations in the first manner.</p>
+<p>Here is my mnemonic technique to remember what cam-to-world means:</p>
+<ul>
+<li>the cam-to-world matrix converts from camera coordinates to world coordinates (which is the way normal people think about this term)</li>
+<li>the cam-to-world matrix <em>pulls the camera out into the world</em></li>
+</ul>
+<h2 id="2c-understanding-camera-rotation--specifying-the-cam-to-world-rotation-from-an-orthonormal-basis">2c: Understanding camera rotation &amp; specifying the cam-to-world rotation from an orthonormal basis</h2>
+<p>Now, instead, let&rsquo;s imagine we stay in the world orign, and spin around the heel for +90 degrees around y (this means to the counter-clockwise, so that we face to the left afterwards).
+The iPhone&rsquo;s y-axis still points upwards, i.e.,<em>positive y</em> remains <em>positive y</em>.
+Its x-axis however now points to what we call <em>negative z</em> in the world coordinate frame (as we can also see from the plastic coordinate frame mounted to it).
+And the iPhone&rsquo;s z-axis now points to what we called <em>positive x</em>.</p>
+<p>
+
+How do we describe this numerically?
+Of course, $(1, 0, 0)_{world}$ in world coordinates becomes $(1, 0, 0)_{cam}$ in camera coodinates but that is trivial and does not provide us with information about the spatial relationship between the two. 
+Instead, we need to know how the camera coordinate axes are situated _with respect to the world axes_.
+
+Describing the camera motion from the perspective of the world coordinate system, the world's *positive x* $(1, 0, 0)_{\text{world}}$ becomes $(0, 0, -1)_{world}$ for the camera's x-axis.
+The world's *positive y* $(0, 1, 0)_{world}$ stays $(0, 1, 0)_{world}$ for the camera's y-axis.
+The world's *positive z* $(0, 0, 1)_{world}$ becomes $(1, 0, 0)_{world}$ as the camera's z-axis.
+
+</p>
+<p>To describe this rotation, we can make use of a rotation matrix that can be pre-multiplied to a vector in order to obtain the vector rotated about the rotation center.</p>
+<p>To specify this rotation matrix, we can simply ask us which rotation matrix maps the x-axis $(1, 0, 0)$ or more precisely, the point at the tip of the unit vector in x direction, to (0, 0, -1). Similarly, we want to map y and z, i.e., we want a matrix $R \in \mathbb{R}^{3\times3}$ where:
+<p>
+
+$$
+R\cdot
+\begin{pmatrix}
+1\\
+0\\
+0
+\end{pmatrix} =
+\begin{pmatrix}
+0\\
+0\\
+-1
+\end{pmatrix}
+$$
+
+$$
+R\cdot
+\begin{pmatrix}
+0\\
+1\\
+0
+\end{pmatrix} =
+\begin{pmatrix}
+0\\
+1\\
+0
+\end{pmatrix}
+$$
+
+$$
+R\cdot
+\begin{pmatrix}
+0\\
+0\\
+1
+\end{pmatrix} =
+\begin{pmatrix}
+1\\
+0\\
+0
+\end{pmatrix}
+$$
+
+</p></p>
+<p>When written down as in the above, the one-hot vectors on the right basically perform a column selection in $R$.
+Therefore, we know that
+<p>
+
+$$R=
+\begin{pmatrix}
+0&0&1\\
+0&1&0\\
+-1&0&0
+\end{pmatrix}.
+$$
+
+</p></p>
+<p>In summary, we can easily construct our desired rotation matrix by stacking the unit vectors pointing along the three desired new axis as columns, thus describing where each axis goes.
+The matrix constructed like this will comply to the to two necessary and sufficient (i.e., &ldquo;if and only if&rdquo;) properties satified by any rotation matrix:</p>
+<ul>
+<li>orthonogality ($R^{-1}=R^T$)</li>
+<li>$det(R) = 1$</li>
+</ul>
+<p>In the same way that the above-constructed cam-to-world translation vector can be interpreted</p>
+<ol>
+<li>as a vector that translate the origin-aligned camera from (0, 0, 0) in world coordinates out into the world and equivalently</li>
+<li>as a vector that translates any point from the camera coordinate system into world coordinates,
+the so-constructed cam-to-world rotation matrix can be interpreted analogously.</li>
+</ol>
+<p>First, it can be considered as rotating the world coordinate system onto the camera coordinate system while still using world-coordinate-referenced numbers.
+So, by premultiplying this matrix to the camera and any point surrounding it, we rotate the camera and the points around the world origin obtaining rotated positions in world coordinate systems.</p>
+<p>
+
+Second, it can be understood as converting the notation from camera-referenced rotations into world-referenced rotations:
+E.g., et's take the perspective of the camera:
+$(1, 0, 0)_{\text{cam}}$ is the x-axis of the camera. 
+When pre-multiplying this constructed cam-to-world rotation matrix, $(1, 0, 0)_{\text{cam}}$ selects the first column of the rotation matrix and obtains the direction in world coordinate systems.
+So, put different, the camera rotation is converted to the world coordinate system. 
+The first, second, and third column describes how the tip of the first, second and third camera unit axis is called in the world coordinate system.
+
+</p>
+<p>Hence, the name <strong>cam-to-world matrix</strong>.</p>
+<h2 id="2d-obtaining-the-camera-pose-matrix-synonymously-the-cam-to-world-matrix">2d: Obtaining the camera pose matrix (synonymously: the cam-to-world matrix)</h2>
+<p>So, to repeat, we now have a cam-to-world translation, and a cam-to-world rotation, which can be interpreted</p>
+<ol>
+<li>either as moving the camera from an initial world-aligned state to a new state that is described in world coordinates,</li>
+<li>or as converting camera coordinates into world coordinates.</li>
+</ol>
+<p>After defining the camera&rsquo;s translation vector and the camera&rsquo;s 3x3 rotation matrix with columns like this, we often want to combine them in a single 4x4 homogeneous <strong>pose matrix</strong> $P$ (synoymously <strong>cam-to-world matrix</strong> $M_{\text{cam-to-world}}$) that can be easily premulitplied to incoming points.</p>
+<p>We have at least two ways of obtaining $M_{\text{cam-to-world}}$.</p>
+<p>Note that I use the term pre-multiplying in the following, even though there is no point to the right.
+This linguistic convention serves as a reminder that corresponding geometric operations are applied from right to left.
+You can always imagine a point to the right to make sense of this.</p>
+<h3 id="alternative-1-pre-multiplying-the-cam-to-world-rotation-and-translation-in-the-correct-order">Alternative 1: Pre-multiplying the cam-to-world rotation and translation in the correct order</h3>
+<p>Imagine a camera in the origin and a point 5 meter in front of it.
+Imagine the new camera is rotated to the left and also moved 1 meter to the left (hovering above your sholder).
+To transform the point ahead to also be ahead to the camera, we <em>first</em> need to rotate, and <em>then</em> translate it.</p>
+<p>To do so,</p>
+<ul>
+<li>first, compose the homogeneous translation matrix, i.e., take an identity matrix of 4x4, then plug-in the translation $t$ into the last column&rsquo;s top three values (yielding $T_{\text{cam-to-world}}$)</li>
+<li>second, compose the homogeneous rotation matrix, i.e., take an identity matrix of 4x4, then plug-in the described 3x3 rotation $r$ into the top-left 3x3 &ldquo;sub-matrix&rdquo; (yielding $R_{\text{cam-to-world}}$).</li>
+</ul>
+<p>Then, our cam-to-world transform matrix is obtained via:</p>
+<p>$P=M_{\text{cam-to-world}} = T_{\text{cam-to-world}} \cdot R_{\text{cam-to-world}}$</p>
+<h3 id="alternative-2-plugging-together-the-pose-matrix-directly">Alternative 2: Plugging together the pose matrix directly</h3>
+<p>Alternatively, we can also plug the pose matrix together from the camera position and cam-to-world rotation directly.
+Simply, initialize an identity matrix <code>(M = np.identity(4)</code>),
+plug in the 3x3 cam-to-world rotation into the first three columns and top three rows (<code>M[:3,:3] = r</code>),
+and then the 3x1 translation vector (<code>M[:3,3] = t</code>) into the last column.</p>
+<p>This yields:</p>
+<p>
+
+$$P=
+\begin{bmatrix}
+R_{3\times3}&t_{3\times1}\\
+0_{1\times3}&1_{1\times1}
+\end{bmatrix}
+$$
+
+</p>
+<p>Note that we can easily read-out the camera position from the pose matrix (hence, the name).</p>
+<p>These two alternatives produce the same result which we call <strong>pose matrix</strong> or <strong>cam-to-world matrix</strong>, i.e.,</p>
+<p>$$P=M_{\text{cam-to-world}}=[R_{\text{cam-to-world}}|t]=T\cdot R.$$</p>
+<h2 id="2e-obtaining-the-camera-extrinsics-matrix-synonymously-the-world-to-cam-matrix-for-the-computer-graphics--projection-pipeline">2e: Obtaining the camera extrinsics matrix (synonymously: the world-to-cam matrix for the computer graphics &amp; projection pipeline)</h2>
+<p>The extrinsics matrix $E$ converts from world coordinates to camera coordinates.
+This is why it is extensively used in computer graphics where we need to get 3D points in world space into camera space before projecting them into image space.</p>
+<p>It can also be understood as moving the camera together with all its surrounding points in world coordinates to the origin <em>while always remaining in the world coordinate system</em>.</p>
+<p>Again, there is multiple ways of obtaining it.</p>
+<h3 id="alternative-1-inverting-the-cam-to-world-matrix-synonymously-inverting-the-pose-matrix">Alternative 1: Inverting the cam-to-world matrix (synonymously: inverting the pose matrix)</h3>
+<p>For this approach, we leverage that</p>
+<p>$E=M_{\text{world-to-cam}} = M_{\text{cam-to-world}}^{-1}$ .</p>
+<p>To this end, we invert the pose matrix using something like Python&rsquo;s <code>np.linalg.inv(m)</code> or Unity&rsquo;s <code>Matrix4x4 inv = m.inverse;</code>.</p>
+<h3 id="alternative-2-pre-multiplying-the-inverses-of-the-cam-to-world-rotation-and-cam-to-world-translation-in-the-correct-order">Alternative 2: Pre-multiplying the inverses of the cam-to-world rotation and cam-to-world translation in the correct order</h3>
+<p>The above alterantive 1 inverts the 4x4 matrix numerically.
+If we want to avoid this, we can instead reduce the problem to simpler inversions of the underlying rotation and translation matrices.</p>
+<p>To this end, we first start with plugging the basics from above together:</p>
+<p>$E=M_{\text{world-to-cam}} = (M_{\text{cam-to-world}})^{-1} = (T_{\text{cam-to-world}} \cdot R_{\text{cam-to-world}})^{-1}$</p>
+<p>Then, we can exploit the fact that the inverse of a product of two invertible matrices is the same as the product of the inverted matrices in reverse order, which finally gives us:</p>
+<p>$E=M_{\text{world-to-cam}} = R_{\text{cam-to-world}}^{-1} \cdot T_{\text{cam-to-world}}^{-1}$</p>
+<p>Inverting the rotation matrix and the translation matrix is much very simple as</p>
+<ul>
+<li>inverting a rotation matrix is taking its transpose,</li>
+<li>inverting a translation matrix is flipping all signs in the last-column top-three elements.</li>
+</ul>
+<h3 id="alternative-3-plugging-together-the-extrinsics-matrix-directly">Alternative 3: Plugging together the extrinsics matrix directly</h3>
+<p>Again, we can also jsut plug the extrinsics matrix together without multiplying the two 4x4 matrices at all.</p>
+<p>
+
+$$E=M_{\text{world-to-cam}}=
+\begin{bmatrix}
+{R}_{3\times3}^{\text{world-to-cam}}&{t^*}_{3\times1}\\
+0_{1\times3}&1_{1\times1}
+\end{bmatrix}
+$$
+
+</p>
+<p>The top left 3x3 slice contains $R_{\text{world-to-cam}}$ which is the inverted $R_{\text{cam-to-world}}$ matrix.
+Remember that $R^T=R^{-1}$, so a valid rotation matrix is easy to invert.
+The last 3x1 column is obtained as $t^*=-R_{\text{world-to-cam}}t$, where $t$ is the camera&rsquo;s position in world.
+The bottom 1x4 row contains the homogeneous appendix $(0., 0., 0., 1.)$.</p>
+<p>Beware, too many times, I have tried to plug-in the sign-swapped translation vector directly here, forgetting to premultiply $R_{\text{world-to-cam}}$.</p>
+<h2 id="2f-summary--cam-transform-convention">2f: Summary &amp; cam transform convention</h2>
+<p>To summarize, we distinguish between the following matrices:</p>
+<table>
+<thead>
+<tr>
+<th>synonyms (in my world but sometimes used conflictingly)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(camera) transform (matrix), pose matrix, camera-to-world matrix</td>
+</tr>
+<tr>
+<td>view matrix, world-to-camera matrix, extrinsics matrix</td>
+</tr>
+<tr>
+<td>intrinsics matrix</td>
+</tr>
+<tr>
+<td>projection matrix</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table: different matrices involved in computer vision and computer graphics</strong></p>
+<p>The intrisics matrix contains the measured properties of the camera and can used to project 3D points onto the image plane.
+The projection matrix can additionally take care for far-near clipping and viewport clipping.
+Thus, while the intrinsics matrix contains only information relating to the camera properties, the projection matrix also contains information about the rendering chosen arbitrarily.</p>
+<p>In this post, we take particular interest in the pose matrix and the extrinsics matrix, which can obtained as follows:</p>
+<p>
+
+
+$$P=E^{-1}=M_{\text{cam-to-world}}=T_{\text{cam-to-world}}\cdot R_{\text{cam-to-world}}=[R_{\text{cam-to-world}}|t]$$
+
+$$E=P^{-1}=M_{\text{world-to-cam}}= R_{\text{cam-to-world}}^{-1} \cdot T_{\text{cam-to-world}}^{-1}=[R_{\text{world-to-cam}}|t^*]\text{ with }t^*=-R_{\text{world-to-cam}}t.$$
+
+
+</p>
+<p>It always important to think about which &ldquo;cam transform convention&rdquo; the framework one is working with follows.
+Sometimes, the camera position and rotation is indicated via a pose matrix, sometimes as an extrinsics matrix.</p>
+<p>For example, In ARKit, <code>frame.camera.transform.columns</code> refers to a camera pose matrix, not an extrinsics matrix.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>cam transform convention</th>
+<th>as a result: T describes the camera position</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Top-Secret, NeRFStudio, ARKit</td>
+<td>camera-to-world / pose</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>openGL</td>
+<td>world-to-camera</td>
+<td>no</td>
+</tr>
+</tbody>
+</table>
+<p>To summarize, one good approach is to first obtain the pose matrix (cam-to-world matrix) and then the extrinsics matrix (world-to-camera matrix), as follows:</p>
+<ol>
+<li>derive the rotation that maps each camera basis vectors to the directions provided by the world coordinate frame,</li>
+<li>derive the translation that moves the world origin onto the camera coordinate,</li>
+<li>then rotate and afterwards translate ($T&rsquo; R&rsquo; \times p$) to obtain the cam-to-world matrix,</li>
+<li>finally invert the whole thing to obtain world-to-cam matrix.</li>
+</ol>
+<p><strong>Table: cam transform convention</strong></p>
+<h1 id="step-3-understanding-properties-and-computing-rules-with-transforms-and-rotation-matrices">Step 3: Understanding properties and computing rules with transforms and rotation matrices</h1>
+<h2 id="properties-of-rotations">Properties of rotations</h2>
+<h3 id="definition">Definition</h3>
+<p>A matrix is a rotation matrix if and only if</p>
+<ol>
+<li>$R$ is an orthormal matrix, i.e.,
+<ul>
+<li>$R$ is orthogonal (i.e., the matrix&rsquo; inverse is equal to its tranpose $R^{-1}=R^T$), and</li>
+<li>each row vector of $R$ has length 1,</li>
+</ul>
+</li>
+<li>$R$ has determinant +1.</li>
+</ol>
+<p>All matrixes $R \in \mathbb{R}^n$ with the above two properties form $SO(n)$, the special orthogonal group of $n$.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-py" data-lang="py"><span style="display:flex;"><span><span style="color:#75715e">### Rotation ###</span>
+</span></span><span style="display:flex;"><span>r <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array([
+</span></span><span style="display:flex;"><span>    [<span style="color:#ae81ff">1</span>,  <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>],
+</span></span><span style="display:flex;"><span>    [<span style="color:#ae81ff">0</span>,  <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>], 
+</span></span><span style="display:flex;"><span>    [<span style="color:#ae81ff">0</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>],
+</span></span><span style="display:flex;"><span>])
+</span></span><span style="display:flex;"><span>R <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>identity(<span style="color:#ae81ff">4</span>)
+</span></span><span style="display:flex;"><span>R[:<span style="color:#ae81ff">3</span>,:<span style="color:#ae81ff">3</span>]<span style="color:#f92672">=</span>r
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># properties of a rotation</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">assert</span> np<span style="color:#f92672">.</span>all(np<span style="color:#f92672">.</span>linalg<span style="color:#f92672">.</span>det(R) <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">assert</span> np<span style="color:#f92672">.</span>all(R<span style="color:#f92672">.</span>T <span style="color:#f92672">==</span> np<span style="color:#f92672">.</span>linalg<span style="color:#f92672">.</span>inv(R))
+</span></span></code></pre></div><h3 id="further-properties">Further properties</h3>
+<p>Rotation matrices can be, but are not necessarily symmetric, i.e., $R = R^{T}$ does generally not hold.</p>
+<h3 id="interesting-implication-of-orthonormality">Interesting implication of orthonormality</h3>
+<p>Orthonormality is equivalent to the property that the row vectors form an orthonomal basis.
+This is equivalent to the property that the columns vector form an orthonormal basis (<a href="https://en.wikipedia.org/wiki/Orthogonal_matrix#Matrix_properties)">https://en.wikipedia.org/wiki/Orthogonal_matrix#Matrix_properties)</a>.
+As an interesting side effect of the orthonormality property, the rotation matrix contains redundancy as we only need two base vectors, i.e. two rows, i.e., two columns, to compute the third vector as the cross product of the two given vectors.</p>
+<h3 id="interesting-implication-of-detr--1">Interesting implication of $det(R) = +1$</h3>
+<p>An orthonormal matrix could have determinant -1 or +1 (<a href="https://en.wikipedia.org/wiki/Orthogonal_matrix)">https://en.wikipedia.org/wiki/Orthogonal_matrix)</a>, be a rotation matrix is  orthonormal matrix with $det(R)=+1$  (<a href="https://en.wikipedia.org/wiki/Orthogonal_group">https://en.wikipedia.org/wiki/Orthogonal_group</a>, <a href="https://en.wikipedia.org/wiki/3D_rotation_group#Orthogonal_and_rotation_matrices)">https://en.wikipedia.org/wiki/3D_rotation_group#Orthogonal_and_rotation_matrices)</a>.</p>
+<p>An axis sign flip cannot be represented by a <em>proper</em> rotation matrix.
+Flipping a sign in a rotation matrix with 3 positive or negative ones will flip the determinant.
+So, to convert from a right-hand coordinate system to a left-hand coordinate system, we have to put first align two the three axes, and then flip the remaining one.</p>
+<h2 id="properties-of-translations">Properties of translations</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-py" data-lang="py"><span style="display:flex;"><span><span style="color:#75715e">### Translation ###</span>
+</span></span><span style="display:flex;"><span>t <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array([<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>])
+</span></span><span style="display:flex;"><span>T <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>identity(<span style="color:#ae81ff">4</span>)
+</span></span><span style="display:flex;"><span>T[:<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">3</span>]<span style="color:#f92672">=</span>t
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># sanity check that we understand what we are doing</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">assert</span> np<span style="color:#f92672">.</span>all(np<span style="color:#f92672">.</span>linalg<span style="color:#f92672">.</span>inv(T) <span style="color:#f92672">==</span> np<span style="color:#f92672">.</span>array([
+</span></span><span style="display:flex;"><span>    [<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>    [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">2</span>], 
+</span></span><span style="display:flex;"><span>    [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">3</span>], 
+</span></span><span style="display:flex;"><span>    [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>], 
+</span></span><span style="display:flex;"><span>]))
+</span></span></code></pre></div><h2 id="properties-translational-and-rotational-transformation-sequences">Properties translational and rotational transformation sequences</h2>
+<h3 id="r-times-t-neq-r_3times3-t_3times1-----but-----t-times-r--r_3times3-t_3times1">$R \times T \neq [R_{3\times3} T_{3\times1}]$ &mdash; BUT &mdash; $T \times R = [R_{3\times3} T_{3\times1}]$</h3>
+<p>A mistake I have made too many times in my early days.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-py" data-lang="py"><span style="display:flex;"><span><span style="color:#75715e">### Plugged together ###</span>
+</span></span><span style="display:flex;"><span>M <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>identity(<span style="color:#ae81ff">4</span>)
+</span></span><span style="display:flex;"><span>M[:<span style="color:#ae81ff">3</span>,:<span style="color:#ae81ff">3</span>] <span style="color:#f92672">=</span> r
+</span></span><span style="display:flex;"><span>M[:<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">3</span>] <span style="color:#f92672">=</span> t
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># there are two ways of obtaining the pose matrix</span>
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;M:</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">{</span>M<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;T@R:</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">{</span>T<span style="color:#a6e22e">@R</span><span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">assert</span> np<span style="color:#f92672">.</span>all(T <span style="color:#f92672">@</span> R <span style="color:#f92672">==</span> M)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># this is not a way of obtaining the pose matrix</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">assert</span> <span style="color:#f92672">not</span> np<span style="color:#f92672">.</span>all(R <span style="color:#f92672">@</span> T <span style="color:#f92672">==</span> M)
+</span></span></code></pre></div><h3 id="r-times-t--t-1-times-r-1-1">$R \times T = (T^{-1} \times R^{-1})^{-1}$</h3>
+<p>Too many times, I doubted myself because I was violating the $TRS\times p$ rule: first scale, then rotate, finally translate.
+However, as described above when computing the extrinsics matrix from the pose matrix in alterantive, we are in need to first translate and only then rotate some of the matrices we are looking at.</p>
+<p>This follows from the following rule:
+Given two invertible matrices, the inverse of their product is the product of their inverses in reverse order (<a href="https://en.wikipedia.org/wiki/Invertible_matrix#Other_properties)">https://en.wikipedia.org/wiki/Invertible_matrix#Other_properties)</a>:</p>
+<p>$
+(R \times T)^{-1} = R^{-1} \times T^{-1}
+$</p>
+<p>And then, inverting left-hand and right-hand side:
+$
+R \times T = (T^{-1} \times R^{-1})^{-1}
+$</p>
+<p>We can gain confidence in Python:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-py" data-lang="py"><span style="display:flex;"><span><span style="color:#75715e">## the product of two invertible matrices is the same as the inverse of the inverted matrices in reverse order</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">assert</span> np<span style="color:#f92672">.</span>all(R <span style="color:#f92672">@</span> T <span style="color:#f92672">==</span> np<span style="color:#f92672">.</span>linalg<span style="color:#f92672">.</span>inv(np<span style="color:#f92672">.</span>linalg<span style="color:#f92672">.</span>inv(T) <span style="color:#f92672">@</span> np<span style="color:#f92672">.</span>linalg<span style="color:#f92672">.</span>inv(R)))
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">assert</span> np<span style="color:#f92672">.</span>all(T <span style="color:#f92672">@</span> R <span style="color:#f92672">==</span> np<span style="color:#f92672">.</span>linalg<span style="color:#f92672">.</span>inv(np<span style="color:#f92672">.</span>linalg<span style="color:#f92672">.</span>inv(R) <span style="color:#f92672">@</span> np<span style="color:#f92672">.</span>linalg<span style="color:#f92672">.</span>inv(T)))
+</span></span></code></pre></div><p>Because we can compute the extrinsics matrix as the inverse of the pose matrix, we actually are in need to first translate and then rotate with corresponding inverted matrices.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-py" data-lang="py"><span style="display:flex;"><span><span style="color:#75715e"># there are three ways of obtaining the extrinsics matrix</span>
+</span></span><span style="display:flex;"><span>M_inv <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>linalg<span style="color:#f92672">.</span>inv(M)
+</span></span><span style="display:flex;"><span>M_inv_factors <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>linalg<span style="color:#f92672">.</span>inv(R) <span style="color:#f92672">@</span> np<span style="color:#f92672">.</span>linalg<span style="color:#f92672">.</span>inv(T)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>M_inv_plugged <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>identity(<span style="color:#ae81ff">4</span>)
+</span></span><span style="display:flex;"><span>M_inv_plugged[:<span style="color:#ae81ff">3</span>,:<span style="color:#ae81ff">3</span>] <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>linalg<span style="color:#f92672">.</span>inv(r)
+</span></span><span style="display:flex;"><span>M_inv_plugged[:<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">3</span>] <span style="color:#f92672">=</span> <span style="color:#f92672">-</span> np<span style="color:#f92672">.</span>linalg<span style="color:#f92672">.</span>inv(r) <span style="color:#f92672">@</span> t
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;M_inv:</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">{</span>M_inv<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;M_inv_factors:</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">{</span>M_inv_factors<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;M_inv_plugged:</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">{</span>M_inv_plugged<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">assert</span> np<span style="color:#f92672">.</span>all(M_inv <span style="color:#f92672">==</span> M_inv_factors)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">assert</span> np<span style="color:#f92672">.</span>all(M_inv <span style="color:#f92672">==</span> M_inv_plugged)
+</span></span></code></pre></div><h3 id="associativity-but-no-commutativity">Associativity but no commutativity</h3>
+<p>Always remember that matrix multiplication is associative but not commutative.</p>
+<h1 id="converting-between-coordinate-system-conventions">Converting between coordinate system conventions</h1>
+<p>Finally, let&rsquo;s consider converting between coordinate conventions.
+The below thoughts lead to my coordinate convention conversion tool, found at <a href="https://mkari.de/coord-converter/">https://mkari.de/coord-converter/</a>.
+Potentially, this can save you days of debugging, so make sure to check it out.</p>
+<h2 id="step-1-visualizing-world-and-camera-axes">Step 1: Visualizing world and camera axes</h2>
+<p>For illustration, remember that <strong>xyz</strong> corresponds with <strong>RGB</strong>, i.e.:
+The x axis (first axis) is always visualized as red.
+The y axis (second axis) is always visualized as green.
+The z axis (third axis) is always visualized as blue.</p>
+<p>The only question that one sometimes finds oneself having is:
+Are we looking at a global or local coordinate axis?
+For example, the camera coordinate system&rsquo;s y-axis might drop to the world coordinate system&rsquo;s x-axis during a rotation or convention transform, so be sure to be consistent about this.</p>
+<h2 id="step-2-specifying-a-convention-transform">Step 2: Specifying a convention transform</h2>
+<p>A change in convention can be representation by a 3x3 or 4x4 convention transform.
+If the handedness does not change between conventions, the convention transform is a proper rotation matrix.
+If handedness changes, the convention transforms determinant becomes negative, making it what is sometimes called an improper rotation matrix.</p>
+<p>However, this does not change the process at all.
+Instead, simply need to ask ourselves how to define the convention transform.</p>
+<p>Imagine you get coordinates in NED (x forward, y right, z down) and want to map them to Unity (x right, y up, z forward).</p>
+<p>My recipe is as follow:</p>
+<ol>
+<li>Draw the camera perspectives on paper with the source coordinate convention (here: NED) on the left and target (here: Unity) on the right.</li>
+<li>Iterate over the the left (i.e., source) axes and ask yourself: Which target unit do I get for my source unit. That&rsquo;s basically what conversion is, right? For each axes, note the answer in a colum, filling up from left to right.</li>
+<li>Once done, you have 3 colums, making up an orthonormal matrix with determinant 1 (i.e., a rotation matrix), or a orthonormal matrix with determinant -1 (because handedness flipped).</li>
+</ol>
+<h2 id="step-3-point-conversion">Step 3: Point conversion</h2>
+<p>In order to convert incoming points from the source coordinate frame, pre-multiply the convention transform matrix to your incoming source points.</p>
+<h2 id="step-4-rotation-conversion">Step 4: Rotation conversion</h2>
+<p>Converting rotations is a bit more intricate again.
+The process depends on the rotation representation used by the source system:
+Rotation matrices (as defined above), Euler angles, or quaternions.</p>
+<h3 id="converting-incoming-rotation-matrices">Converting incoming rotation matrices</h3>
+<p>Imagine, we obtain tracking data from ARKit (x right, y up, z backward) and want to visualize it in a 3D rendering engine that uses an NED convention (x forward, y right, z down).
+I chose this conversion example, because all axes are different, making it easier to spot sign errors.</p>
+<p>This full exampled is visualized in the next figure and verbalized afterwards in 3 steps.</p>
+<p><img src="rotation-conversion.png" alt="Visualization of the idea and process of a rotation matrix conversion"></p>
+<p>
+
+Consider the initial state where the phone is aligned with the ARKit world coordinate system. 
+Imagine a physically mounted plastic frustrum extending forward as well as two physically mounted coordinate frames, one in the ARKit convention and one in the NED convention, all glued to the phone.
+In this initial state in ARKit, the phone's rotation matrix as tracked by ARKit is equal to the identity. 
+Considering the ARKit coordinate frame, the tip of the z-axis lies at $(0,0,1)_\text{ARKit}$ in ARKit convention, facing backward and  the jabbing the user into the eye.
+Considering the NED coordinate frame, the tip of the x-axis extend forward $(1,0,0)_\text{ARKit}$. 
+
+</p>
+<h4 id="sub-step-a-obtaining-the-convention-transform-from-source-to-target">Sub-Step A: Obtaining the convention transform from source to target</h4>
+<p>Following the recipe from above to obtain the convention transform, we draw the ARKit coordinate frame and the NED coordinate frame next to each, and find out that:</p>
+<ul>
+<li>
+<p>
+
+A point $(1, 0, 0)_{\text{ARKit}}$ in ARKit becomes $(0, 1, 0)_{\text{NED}}$ in NED.
+
+</p>
+</li>
+<li>
+<p>
+
+A point $(0, 1, 0)_{\text{ARKit}}$ in ARKit becomes $(0, 0, -1)_{\text{NED}}$ in NED.
+
+</p>
+</li>
+<li>
+<p>
+
+A point $(0, 0, 1)_{\text{ARKit}}$ in ARKit becomes $(-1, 0, 0)_{\text{NED}}$ in NED.
+
+</p>
+</li>
+</ul>
+<p>Writing the target coordinate frame&rsquo;s axes in columns yields:
+<p>
+
+$$
+R_{\text{ARKit-to-NED}}=
+\begin{pmatrix}
+  0 &  0 & -1\\
+  1 &  0 &  0\\
+  0 & -1 &  0
+\end{pmatrix}
+$$
+
+</p></p>
+<p>
+
+If we pre-multiply this convention transform $R_{\text{ARKit-to-NED}}$ with an incoming point $(1, 0, 0)_{\text{ARKit}}$, i.e., a point 1 meter to the right of the camera, we correctly obtain $(0, -1, 0)_{\text{NED}}$, still point 1 meter to the right of the camera.
+
+</p>
+<h4 id="sub-step-b-understanding-a-rotation-in-the-source-coordinate-system">Sub-Step B: Understanding a rotation in the source coordinate system</h4>
+<p>Remember, in a world-aligned initial pose, the ARKit iPhone neutrally rests in landscape mode, screen facing the user, selfie camera on the left side of phone, and USB-C/Lightning port to the right.</p>
+<p>Rotating the phone 90 degrees counter-clockwise, so that the phone is in upside-down portrait mode afterwards, is a rotation around the z-axis in positive direction.
+Purely talking ARKit, the rotation from state 0 to state 1 is described by rotation matrix:</p>
+<p>
+
+$$
+R_{\text{ARKit}_0\text{-to-ARKit}_1}=
+\begin{pmatrix}
+  0 &  1 &  0\\
+ -1 &  0 &  0\\
+  0 &  0 &  1
+\end{pmatrix}
+$$
+
+</p>
+<p>Considering the NED frame, rotating the phone 90 degrees counter-clockwise, is a rotation around the x-axis by $-90$ degrees or $+270$ degrees.
+Purely talking NED, the rotation from state 0 to state 1 is described by rotation matrix:</p>
+<p>
+
+$$
+R_{\text{NED}_0\text{-to-NED}_1}=
+\begin{pmatrix}
+  1 &  0 &  0\\
+  0 &  0 &  -1\\
+  0 &  1 &  0
+\end{pmatrix}
+$$
+
+</p>
+<p>However, this last rotation $R_{\text{NED}_0\text{-to-NED}_1}$, we do not have.
+Instead, all we have in our ARKit-in-a-NED-3D-visualization-system is the hard-coded convention transform, and incoming ARKit rotation.
+The question becomes: How do we get convert the ARKit rotation matrix into a NED rotation matrix?</p>
+<h4 id="sub-step-c-computing-r_textned_0text-to-ned_1">Sub-Step C: Computing $R_{\text{NED}_0\text{-to-NED}_1}$</h4>
+<p>We can&rsquo;t directly apply the incoming rotation matrix to the NED point, and we also cannot just pre-multiply the convention transform as we can with points.</p>
+<p>Instead, the idea is to chain rotations as follows, converting the neutral coordinate coordinate frame to the source target frame first, applying the known rotation in the source system, and transforming back to the target system:</p>
+<p>
+
+$$
+R_{\text{NED}_{\text{0-to-1}}}=
+R_{\text{ARKit}_1\text{-to-NED}_1}
+\cdot
+R_{\text{ARKit}_0\text{-to-ARKit}_1}
+\cdot
+R_{\text{NED}_0\text{-to-ARKit}_0}
+$$
+
+</p>
+<p>
+
+If you read the indices correctly as $\text{NED}_0\text{-to-ARKit}_0\text{-to-ARKit}_1\text{to-NED}_1$, you see that the total rotation indeed ends up being $\text{NED}_{\text{0-to-1}}$.
+
+</p>
+<p>Given that the convention transform is static over time, we can write:</p>
+<p>
+
+$$
+R_{\text{NED}_{\text{0-to-1}}}=
+R_{\text{ARKit}\text{-to-NED}}
+\cdot
+R_{\text{ARKit}_0\text{-to-ARKit}_1}
+\cdot
+R_{\text{NED}\text{-to-ARKit}}
+$$
+
+</p>
+<p>and given the convention transforms invertibility, we can write:</p>
+<p>
+
+$$
+R_{\text{NED}_{\text{0-to-1}}}=
+R_{\text{ARKit}\text{-to-NED}}
+\cdot
+R_{\text{ARKit}_0\text{-to-ARKit}_1}
+\cdot
+(R_{\text{ARKit}\text{-to-NED}})^T.
+$$
+
+</p>
+<p>And indeed:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-py" data-lang="py"><span style="display:flex;"><span>R_arkit_0_to_1 <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array([
+</span></span><span style="display:flex;"><span>    [ <span style="color:#ae81ff">0</span>,  <span style="color:#ae81ff">1</span>,  <span style="color:#ae81ff">0</span>],
+</span></span><span style="display:flex;"><span>    [<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>,  <span style="color:#ae81ff">0</span>,  <span style="color:#ae81ff">0</span>],
+</span></span><span style="display:flex;"><span>    [ <span style="color:#ae81ff">0</span>,  <span style="color:#ae81ff">0</span>,  <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>R_ned_0_to_1 <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array([
+</span></span><span style="display:flex;"><span>    [ <span style="color:#ae81ff">1</span>,  <span style="color:#ae81ff">0</span>,  <span style="color:#ae81ff">0</span>],
+</span></span><span style="display:flex;"><span>    [ <span style="color:#ae81ff">0</span>,  <span style="color:#ae81ff">0</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>    [ <span style="color:#ae81ff">0</span>,  <span style="color:#ae81ff">1</span>,  <span style="color:#ae81ff">0</span>],
+</span></span><span style="display:flex;"><span>])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>R_arkit_to_ned <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array([
+</span></span><span style="display:flex;"><span>    [ <span style="color:#ae81ff">0</span>,  <span style="color:#ae81ff">0</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>    [ <span style="color:#ae81ff">1</span>,  <span style="color:#ae81ff">0</span>,  <span style="color:#ae81ff">0</span>],
+</span></span><span style="display:flex;"><span>    [ <span style="color:#ae81ff">0</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>,  <span style="color:#ae81ff">0</span>],
+</span></span><span style="display:flex;"><span>])
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;R_ned_0_to_1:</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">{</span>R_ned_0_to_1<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;R_arkit_to_ned @ R_arkit_0_to_1 @ R_arkit_to_ned.T:</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">{</span>R_arkit_to_ned <span style="color:#f92672">@</span> R_arkit_0_to_1 <span style="color:#f92672">@</span> R_arkit_to_ned<span style="color:#f92672">.</span>T<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">assert</span> np<span style="color:#f92672">.</span>all(R_ned_0_to_1 <span style="color:#f92672">==</span> R_arkit_to_ned <span style="color:#f92672">@</span> R_arkit_0_to_1 <span style="color:#f92672">@</span> R_arkit_to_ned<span style="color:#f92672">.</span>T)
+</span></span></code></pre></div><p>So, in summary, to convert an incoming rotation matrix, we need to pre-multiply with the convention transform, and post-multiply with the inverted convention transform.</p>
+<h3 id="converting-incoming-euler-angles">Converting incoming Euler angles</h3>
+<p>Euler angles, and their special cases of Tait-Byran angles are Davenport angles, are an annoyance in conversion due to two reasons:</p>
+<p>First, they introduce yet another convention.
+In order to interpret three given Euler angles $\alpha, \beta, \gamma$ around $x, y$ and $z$, we need to know if they have been applied intrinsically or extrinsically, and in which order.
+For example, Unity uses Euler angle convention of <em>extrinsic zxy</em> while DJI (and aviation quite often) uses Euler convention of intrinsic yaw-pitch-roll, i.e., <em>intrinsic zyx</em>.</p>
+<p>However, even worse than introducing the need for yet another convention, Euler angles are <em>discontinuous</em>, i.e., a small change such as a single degree in one axis can make all rotation angles jumps abruptly.
+For DJI aircraft, the motion is physically so limited that we mostly don&rsquo;t notice these discontinuities, but in camera motions more generally, Euler angles can often lead to unexpected results (<a href="https://danceswithcode.net/engineeringnotes/rotations_in_3d/rotations_in_3d_part1.html)">https://danceswithcode.net/engineeringnotes/rotations_in_3d/rotations_in_3d_part1.html)</a>..</p>
+<p>Therefore, whenever receiving Euler angles, be sure to convert them to Quaternions as soon as possible.
+To do so, one can intuitively use the axis-angle initialization for Quaternions.</p>
+<p>To find the correct rotation, first use the corresponding hand&rsquo;s grip rule for the axes x, y, and z source axes, and simply look up how this rotation is called in the target system.
+If you rotate with your thumb around an existing unit vector, rename the axis and consider if you need to swap the direction.
+If you rotate toward a non-existing unit vector (because the axis extends into the other direction), you are actually rotating around the negative vector.</p>
+<p>As $x_\text{ARKit}$ is becoming $+y_\text{NED}$, we know that an incoming rotation of $90\deg$ around $x_\text{ARKit}$ is the same like a $90\deg$ around $-x_\text{NED}$, so <code>quat(roll, 0, 1, 0)</code>.
+As $y_\text{ARKit}$ is becoming $-z_\text{NED}$ (note the sign), we know that an incoming rotation of $90\deg$ around $x_\text{ARKit}$ is the same like a $90\deg$ around $-z_\text{NED}$, so <code>quat(pitch, 0, 0, -1)</code>.
+As $y_\text{ARKit}$ is becoming $-z_\text{NED}$ (note the sign), we know that an incoming rotation of $90\deg$ around $x_\text{ARKit}$ is the same like a $90\deg$ around $-z_\text{NED}$, so <code>quat(yaw, -1, 0, 0)</code>.
+Note that it seems as if these vectors are the columns of the convention transform, but the signs flip if handedness changes so make sure to the think it through fully.</p>
+<p>We end up with three axis-angle-initialized quaternions.
+Like matrices, we can right-to-left-pre-multiply them to chain the geometrically corresponding operations.
+The question is only in which order.</p>
+<p>As said, this depends on the source system&rsquo;s Euler angle convention.
+For example, as said, DJI MSDK v5.9 uses intrinsic yaw-pitch-roll, i.e., intrinsic zyx.
+Applying intrinsic rotations is difficult with our axis-angle-initialized quaternions, so let&rsquo;s convert the DJI&rsquo;s Euler intrinsic rotation to an extrinsic Euler rotation first.
+Luckily, this is as easy as reversing the intrinsic order, so instead of applying</p>
+<ul>
+<li>yaw, then</li>
+<li>pitch, and finally</li>
+<li>roll,</li>
+</ul>
+<p>we instead apply</p>
+<ul>
+<li>roll, then</li>
+<li>pitch, and finally</li>
+<li>yaw.</li>
+</ul>
+<p>Chaining this operations in the order of application with right-to-left pre-mulitplication, we obtain the correct rotation of
+$
+\text{quat}_\text{NED} = \text{quat}(\text{yaw}, 0, 1, 0) \times \text{quat}(\text{pitch}, 0, 0, -1) \times \text{quat}(\text{roll},  -1, 0, 0).
+$</p>
+<h1 id="conclusion">Conclusion</h1>
+<p>As this post demonstrates, I have spent my fair share on transforms of all sorts and conventions.
+I come to the conclusion that <em>thinking through</em> what acutally goes on rather than randomly swapping signs and orders has proven more sustainable to me.
+This blog post and my associated coordinate frame conversion tool (<a href="https://mkari.de/coord-converter/">https://mkari.de/coord-converter/</a>) hope to help doing so.</p>
+<hr>
+<p>Typeset with Markdown Math in VSCode and with KaTeX in HTML.
+Converting single dollar signs to double dollar signs, and double backslashes to triple backslahes.</p>
+
+  </section>
+  <footer>
+    
+    <nav class="p-pagination c-pagination">
+      <div class="c-pagination__ctrl">
+        <div class="c-pagination__newer">
+          
+          
+        </div>
+        <div class="c-pagination__older">
+          
+          <a href="https://mohamedkari.github.io/blog.mkari.de/posts/within-subject-analysis/">Older</a>
+          
+        </div>
+      </div>
+    </nav>
+    
+
+
+  </footer>
+</article>
+  </main>
+  
+
+  <footer class="l-footer">
+    
+<ul class="c-links">
+  
+  
+  
+  
+  
+  <li class="c-links__item">
+    <a href="https://github.com/MohamedKari" target="_blank">
+      <svg viewBox="0 0 64 64" class="c-links__icon">
+        <title>github</title>
+        <use xlink:href="#icon-github"></use>
+      </svg>
+    </a>
+  </li>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <li class="c-links__item">
+    <a href="https://linkedin.com/in/mohamedkari" target="_blank">
+      <svg viewBox="0 0 64 64" class="c-links__icon">
+        <title>linkedin</title>
+        <use xlink:href="#icon-linkedin"></use>
+      </svg>
+    </a>
+  </li>
+  
+</ul>
+
+
+
+    <p class="p-copyright">
+      
+        &copy; Mohamed Kari&nbsp;•&nbsp;All rights reserved.&nbsp;•&nbsp;2020
+      
+    </p>
+  </footer>
+
+
+  <script defer type="module">
+    
+    let pairs = document.cookie.split(";")
+    let ref_list = pairs.map(pair => pair.split("=")).filter(splitted => splitted[0].trim() == "ref")
+
+    let ref = ""
+    if (ref_list.length == 0) {
+      ref = String(Math.random()).replace(".", "")
+      var new_cookie = "ref=" + ref + ";path=/;expires=Wed, 01 Dec 2022 01:15:29 GMT;"
+      
+      document.cookie = new_cookie 
+    } else {
+      ref = ref_list[0][1]
+      
+    }
+    
+
+    let url="https://api.mkari.de/counter/" + document.location.pathname.replaceAll("/", "_") + "?ref=" + ref
+    fetch(url, {
+      method: "POST"
+    })
+
+  </script>
+
+</body>
+</html>
+
