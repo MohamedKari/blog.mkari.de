@@ -15,7 +15,7 @@ In this blog post, I discuss the underlying background of transforms, the 'manua
 
 ----
 - [Table of Contents](#table-of-contents)
-- [Step 1: Understanding coordinate frame conventions Of the above-mentioned 48 possible conventions, there are some conventions that are used quite frequently.](#step-1-understanding-coordinate-frame-conventions-of-the-above-mentioned-48-possible-conventions-there-are-some-conventions-that-are-used-quite-frequently)
+- [Step 1: Understanding coordinate frame conventions](#step-1-understanding-coordinate-frame-conventions)
 - [Step 2: Understanding camera transforms](#step-2-understanding-camera-transforms)
   - [2a: Starting with a world-aligned camera](#2a-starting-with-a-world-aligned-camera)
   - [2b: Understanding camera translation \& specifying cam-to-world translation](#2b-understanding-camera-translation--specifying-cam-to-world-translation)
@@ -56,7 +56,8 @@ In this blog post, I discuss the underlying background of transforms, the 'manua
 This post serves as my personal primer whenever I start a new cross-convention 3D project (e.g., capturing poses with sensors in one convention and processing them in a 3D engine with a different convention).
 As a refresher, it's also always good to take a look at the lecture series on computer graphics by [Prof. Kenneth Joy](https://www.youtube.com/playlist?list=PL_w_qWAQZtAZhtzPI5pkAtcUVgmzdAP8g).
 
-# Step 1: Understanding coordinate frame conventions Of the above-mentioned 48 possible conventions, there are some conventions that are used quite frequently.
+# Step 1: Understanding coordinate frame conventions 
+Of the above-mentioned 48 possible conventions, there are some conventions that are used quite frequently.
 In computer graphics, our *2D plane* of interest is the image, thus the plane axes are denominated with x and y, while z refers to depth (hence z-fighting, z-buffering, etc.) and thus is assigned the forward or backward direction.
 In navigation (and thus aviation), our *2D plane* of interest is the earth's surface, as we often think about navigating 2D maps, and thus x and y refer to forward/backward and left/right, whereas z refers to the up/down direction.
 I have encountered the following conventions in the past years, maintaining the below table as a quick cheat sheet.
