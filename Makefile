@@ -3,7 +3,7 @@
 #  make go-live
 
 hugo-serve:
-	hugo serve
+	hugo-bin/hugo_0.95.0_macOS-64bit/hugo serve
 
 pub:
 	./publish.sh
