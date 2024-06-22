@@ -81,12 +81,12 @@ This is my preferred way of indicating a convention.
 An alternative way of indicating the convention is specifying only two axes explicitly and providing the handedness of the coordinate frame so we can derive the missing axis by using the corresponding hand's rule.
 
 The handedness of a coordinate system dictates two principles:
-First, when aligning the thumb with x and the index finger with y, it tells us the positive direction of z, i.e., the direction of the cross-product of x and y.
-Second, when aligning the thumb with the positive direction of an axis, curling the fingers tells us the direction of the positive rotation around that axis ("grip rule" or "cup rule").
+First, when aligning the thumb with x and the index finger with y, the middle finger tells us the positive direction of z, i.e., the direction of the cross-product of x and y ([Fleming's rule](https://en.wikipedia.org/wiki/Right-hand_rule#History)).
+Second, when aligning the thumb with the positive direction of an axis, curling the fingers tells us the direction of the positive rotation direction around that axis ("grip rule" or "cup rule").
 In a left-handed coordinate system, we use the left hand for both principles. 
 In a right-handed system, we use the right hand for both.
 
-In some contexts, each axis has a special name:
+In some contexts, each axis has a special name and is further aligned to "outer world reference points" which however does not change the mathematics at hand (hehe):
 |                             | x                     | y                    | z                                 |
 |-----------------------------|-----------------------|----------------------|-----------------------------------|
 | DJI Body Coordinate System  | roll axis (forward)   | pitch axis (right)   | yaw axis (down)                   |
