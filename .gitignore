@@ -1,3 +1,5 @@
 public
 /content/posts/private/
 hugo-bin/hugo_0.95.0_macOS-64bit/
+.DS_Store
+.hugo_build.lock

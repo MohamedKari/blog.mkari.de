@@ -1,5 +1,5 @@
 ---
-title: "Camera Transforms and Coordinate Convention Cheet Sheet"
+title: "Camera Conventions, Transforms, and Conversions"
 date: 2024-06-22
 draft: false
 author: Mo Kari
