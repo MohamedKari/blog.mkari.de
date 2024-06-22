@@ -20,7 +20,7 @@ rm -rf public/*
 echo "blog.mkari.de" > public/CNAME
 
 echo "Generating site"
-hugo
+hugo-bin/hugo_0.95.0_macOS-64bit/hugo
 
 echo "Updating gh-pages branch"
 cd public && git add --all && git commit -m "Publishing to gh-pages (publish.sh)"
