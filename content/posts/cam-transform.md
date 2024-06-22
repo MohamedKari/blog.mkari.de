@@ -7,7 +7,7 @@ author: Mo Kari
 
 There are 48 combinatorial ways of assigning coordinate frame axes (assign right/left, up/down, and forward/backward to x, y, z, which is $6 \times 4 \times 2$), and it seems as if our disciplines give their best in trying to use all of them.
 Unfortunately, this means there are $48\times47=2556$ ways of converting between coordinate frames, and each of them is dangerously close to a bug.
-As if that were not enough, words like extrinsics or pose matrix are used in different meanings, adding to the confusion that inherently surrounds transforms and rotations.
+As if that were not enough, words like extrinsics or pose matrix are used with different meanings, adding to the confusion that inherently surrounds transforms and rotations.
 My coordinate frame convention conversion tool (https://mkari.de/coord-converter/) simplifies this process radically.
 In this blog post, I discuss the underlying background of transforms, the 'manual' process of performing point and especially rotation conversions, and the tasks that typically follow or are associated with them.
 
@@ -15,7 +15,7 @@ In this blog post, I discuss the underlying background of transforms, the 'manua
 
 ----
 - [Table of Contents](#table-of-contents)
-- [Step 1: Understanding coordinate frame conventions](#step-1-understanding-coordinate-frame-conventions)
+- [Step 1: Understanding coordinate frame conventions Of the above-mentioned 48 possible conventions, there are some conventions that are used quite frequently.](#step-1-understanding-coordinate-frame-conventions-of-the-above-mentioned-48-possible-conventions-there-are-some-conventions-that-are-used-quite-frequently)
 - [Step 2: Understanding camera transforms](#step-2-understanding-camera-transforms)
   - [2a: Starting with a world-aligned camera](#2a-starting-with-a-world-aligned-camera)
   - [2b: Understanding camera translation \& specifying cam-to-world translation](#2b-understanding-camera-translation--specifying-cam-to-world-translation)
@@ -31,7 +31,7 @@ In this blog post, I discuss the underlying background of transforms, the 'manua
 - [Step 3: Understanding properties and computing rules with transforms and rotation matrices](#step-3-understanding-properties-and-computing-rules-with-transforms-and-rotation-matrices)
   - [Properties of rotations](#properties-of-rotations)
     - [Definition](#definition)
-    - [Further properties](#further-properties)
+    - [Non-Symmetry](#non-symmetry)
     - [Interesting implication of orthonormality](#interesting-implication-of-orthonormality)
     - [Interesting implication of $det(R) = +1$](#interesting-implication-of-detr--1)
   - [Properties of translations](#properties-of-translations)
@@ -42,7 +42,7 @@ In this blog post, I discuss the underlying background of transforms, the 'manua
 - [Converting between coordinate system conventions](#converting-between-coordinate-system-conventions)
   - [Step 1: Visualizing world and camera axes](#step-1-visualizing-world-and-camera-axes)
   - [Step 2: Specifying a convention transform](#step-2-specifying-a-convention-transform)
-  - [Step 3: Point conversion](#step-3-point-conversion)
+  - [Step 3: Point conversions](#step-3-point-conversions)
   - [Step 4: Rotation conversion](#step-4-rotation-conversion)
     - [Converting incoming rotation matrices](#converting-incoming-rotation-matrices)
       - [Sub-Step A: Obtaining the convention transform from source to target](#sub-step-a-obtaining-the-convention-transform-from-source-to-target)
@@ -53,13 +53,12 @@ In this blog post, I discuss the underlying background of transforms, the 'manua
 
 ----
 
-This post serves my personal primer whenever I start a new cross-convention 3D projects (e.g., capturing poses with sensors in one convention and processing them in a 3D engine with a different convention).
-As a refresher, it's also always good to take a look at the lectures on transforms by Prof. Kenneth Joy (https://www.youtube.com/playlist?list=PL_w_qWAQZtAZhtzPI5pkAtcUVgmzdAP8g).
+This post serves as my personal primer whenever I start a new cross-convention 3D project (e.g., capturing poses with sensors in one convention and processing them in a 3D engine with a different convention).
+As a refresher, it's also always good to take a look at the lecture series on computer graphics by [Prof. Kenneth Joy](https://www.youtube.com/playlist?list=PL_w_qWAQZtAZhtzPI5pkAtcUVgmzdAP8g).
 
-# Step 1: Understanding coordinate frame conventions 
-Of the above mentioned 48 possible conventions, there are some conventions that are used quite frequently.
+# Step 1: Understanding coordinate frame conventions Of the above-mentioned 48 possible conventions, there are some conventions that are used quite frequently.
 In computer graphics, our *2D plane* of interest is the image, thus the plane axes are denominated with x and y, while z refers to depth (hence z-fighting, z-buffering, etc.) and thus is assigned the forward or backward direction.
-In navigation (and thus aviation), our *2D plane* of interest is the earth surface, as we often think about navigating 2D maps, and thus x and y refer to forward/backward and left/right, whereas z refers to the up/down direction.
+In navigation (and thus aviation), our *2D plane* of interest is the earth's surface, as we often think about navigating 2D maps, and thus x and y refer to forward/backward and left/right, whereas z refers to the up/down direction.
 I have encountered the following conventions in the past years, maintaining the below table as a quick cheat sheet.
 
 |                                              | coordinate system: handedness | camera: forward direction                     | camera: up direction      | equivalent notation            |  
@@ -76,7 +75,7 @@ I have encountered the following conventions in the past years, maintaining the 
 **Table: Coordinate system conventions and camera conventions in different frameworks** 
 
 To specify our coordinate frame convention, we need to indicate three pieces of information as we have three axes.
-One way of indicating the convention is specifying x as right or left, y as up or down, and z back or forward.
+One way of indicating the convention is specifying x as right or left, y as up or down, and z as back or forward.
 This is my preferred way of indicating a convention.
 An alternative way of indicating the convention is specifying only two axes explicitly and providing the handedness of the coordinate frame so we can derive the missing axis by using the corresponding hand's rule.
 
@@ -99,12 +98,12 @@ In some contexts, each axis has a special name:
 Before getting to _convert_ between different coordinate conventions, let's begin at the beginning, i.e., using a single coordinate convention.
 
 ## 2a: Starting with a world-aligned camera
-The most basic thing in a coordinate frame is easy to understand: describe the position of a point $p = (x, y, z)$, which means go _x_ units along the x axis, etc.
-However, it gets a bit more difficult when we use the coordinate frame to describe _transformations_ of either of point clouds or the camera.
+The most basic thing in a coordinate frame is easy to understand: describe the position of a point $p = (x, y, z)$, which means go _x_ units along the x-axis, etc.
+However, it gets a bit more difficult when we use the coordinate frame to describe _transformations_ of either point clouds or the camera.
 Most importantly, let's consider _rigid_ transformations, i.e., point motion or camera motion, and here let's start with camera motion.
 
-For example, ARKit uses a right-handed coordinate system with x right, y up, z backward, i.e., it is right-handed.
-Consider an initial state where the smartphone is in landscape mode with the phone top to the left, and the world coordinate frame is reset, so that world coordinate frame and camera coordinate frame are perfectly aligned. 
+For example, ARKit uses a right-handed coordinate system with x right, y up, and z backward, i.e., it is right-handed.
+Consider an initial state where the smartphone is in landscape mode with the phone top to the left, and the world coordinate frame is reset, so that the world coordinate frame and camera coordinate frame are perfectly aligned. 
 Then, the camera looks down the negative z-axis. 
 The camera's up direction points along the positive y-axis. 
 Thus (using the right-hand rule), the x-axis points to the right.
@@ -122,9 +121,9 @@ R_w=q(0,0,0;1) =
 $$
 {{< /rawhtml >}}
 
-As ARKit uses gravity to determine the world's up direction, any initial rotation in the world configuration about the z-axis does not influence the world coordinate frame definition. 
+As ARKit uses gravity to determine the world's upward direction, any initial rotation in the world configuration about the z-axis does not influence the world coordinate frame definition. 
 That is, if the phone were in standard portrait mode at reset time, it would be rotated about the z-axis from the start. 
-The right-hand grip rule tells us, that it would be rotated in positive direction by 270 degrees when started up in standard portrait mode.
+The right-hand grip rule tells us, that it would be rotated in the positive direction by 270 degrees when started up in standard portrait mode.
 
 ## 2b: Understanding camera translation & specifying cam-to-world translation
 Imagine physically mounting a plastic coordinate frame to the iPhone in this world-aligned state.
@@ -149,7 +148,7 @@ T=
 $$
 {{< /rawhtml >}}
 
-Adding this translation vector to the zero vector (0, 0, 0) or pre-mulitplying the homogeneous translation matrix with the homogeneous zero vector (0, 0, 0, 1), can be interpreted in two ways:
+Adding this translation vector to the zero vector (0, 0, 0) or pre-multiplying the homogeneous translation matrix with the homogeneous zero vector (0, 0, 0, 1), can be interpreted in two ways:
 
 **First**, it describes _moving the camera and all camera-locked points_ from $(0, 0, 0)$ to $(0, 0, -1)$ in world coordinates:
 - the camera is at $(0, 0, 0)$ in world coordinates
@@ -162,12 +161,12 @@ Adding this translation vector to the zero vector (0, 0, 0) or pre-mulitplying t
 - we obtain the camera position $(0, 0, -1)$ in world coordinates.
 
 To summarize, there are two ways of interpreting translation (and as we will see rotation) matrices:
-1) "physically moving" a camera from one coordinate frames to the next while remaining in the same _world_ coordinate system.
+1) "physically moving" a camera from one coordinate frame to the next while remaining in the same _world_ coordinate system.
 2) converting a point to a different _notation_ of the exact same point where each notation is dependent upon the chosen coordinate frame.
 
 Both notions are numerically equivalent, i.e., the same numbers result. 
-They simply offer different approaches of "thinking" the transform operation.
-Interesting, I am under the impression that the majority of books, people and frameworks operate with the second interpretation. 
+They simply offer different approaches to "thinking" the transform operation.
+Interestingly, I am under the impression that the majority of books, people and frameworks operate with the second interpretation whenever possible. 
 In contrast, I nearly always think of operations in the first manner.
 
 Here is my mnemonic technique to remember what cam-to-world means:
@@ -175,14 +174,14 @@ Here is my mnemonic technique to remember what cam-to-world means:
 - the cam-to-world matrix _pulls the camera out into the world_
 
 ## 2c: Understanding camera rotation & specifying the cam-to-world rotation from an orthonormal basis
-Now, instead, let's imagine we stay in the world orign, and spin around the heel for +90 degrees around y (this means to the counter-clockwise, so that we face to the left afterwards).
-The iPhone's y-axis still points upwards, i.e.,*positive y* remains *positive y*.
+Now, instead, let's imagine we stay in the world origin, and spin around the heel for +90 degrees around y (this means counter-clockwise so that we face to the left afterward).
+The iPhone's y-axis still points upwards, i.e., *positive y* remains *positive y*.
 Its x-axis however now points to what we call *negative z* in the world coordinate frame (as we can also see from the plastic coordinate frame mounted to it).
-And the iPhone's z-axis now points to what we called *positive x*.
+And the iPhone's z-axis now points to what we call _positive x_*.
 
 {{< rawhtml >}}
 How do we describe this numerically?
-Of course, $(1, 0, 0)_{world}$ in world coordinates becomes $(1, 0, 0)_{cam}$ in camera coodinates but that is trivial and does not provide us with information about the spatial relationship between the two. 
+Of course, $(1, 0, 0)_{world}$ in world coordinates becomes $(1, 0, 0)_{cam}$ in camera coordinates but that is trivial and does not provide us with information about the spatial relationship between the two. 
 Instead, we need to know how the camera coordinate axes are situated _with respect to the world axes_.
 
 Describing the camera motion from the perspective of the world coordinate system, the world's *positive x* $(1, 0, 0)_{\text{world}}$ becomes $(0, 0, -1)_{world}$ for the camera's x-axis.
@@ -237,7 +236,7 @@ R\cdot
 $$
 {{< /rawhtml >}}
 
-When written down as in the above, the one-hot vectors on the right basically perform a column selection in $R$. 
+When written down as in the above, the one-hot vectors on the right perform a column selection in $R$. 
 Therefore, we know that 
 {{< rawhtml >}}
 $$R=
@@ -249,13 +248,13 @@ $$R=
 $$
 {{< /rawhtml >}}
 
-In summary, we can easily construct our desired rotation matrix by stacking the unit vectors pointing along the three desired new axis as columns, thus describing where each axis goes. 
-The matrix constructed like this will comply to the to two necessary and sufficient (i.e., "if and only if") properties satified by any rotation matrix:
+In summary, we can easily construct our desired rotation matrix by stacking the unit vectors pointing along the three desired new axes as columns, thus describing where each axis goes. 
+The matrix constructed like this will comply with the necessary and sufficient (i.e., "if and only if") properties satisfied by any rotation matrix:
 - orthogonality ($R^{-1}=R^T$)
 - $det(R) = 1$
 
 In the same way that the above-constructed cam-to-world translation vector can be interpreted 
-1) as a vector that translate the origin-aligned camera from (0, 0, 0) in world coordinates out into the world and equivalently 
+1) as a vector that translates the origin-aligned camera from (0, 0, 0) in world coordinates out into the world and equivalently 
 2) as a vector that translates any point from the camera coordinate system into world coordinates, 
 the so-constructed cam-to-world rotation matrix can be interpreted analogously.
 
@@ -264,10 +263,10 @@ So, by premultiplying this matrix to the camera and any point surrounding it, we
 
 {{< rawhtml >}}
 Second, it can be understood as converting the notation from camera-referenced rotations into world-referenced rotations:
-E.g., et's take the perspective of the camera:
+E.g., let's take the perspective of the camera:
 $(1, 0, 0)_{\text{cam}}$ is the x-axis of the camera. 
 When pre-multiplying this constructed cam-to-world rotation matrix, $(1, 0, 0)_{\text{cam}}$ selects the first column of the rotation matrix and obtains the direction in world coordinate systems.
-So, put different, the camera rotation is converted to the world coordinate system. 
+So, put differently, the camera rotation is converted to the world coordinate system. 
 The first, second, and third column describes how the tip of the first, second and third camera unit axis is called in the world coordinate system.
 {{< /rawhtml >}}
 
@@ -279,7 +278,7 @@ So, to repeat, we now have a cam-to-world translation, and a cam-to-world rotati
 1) either as moving the camera from an initial world-aligned state to a new state that is described in world coordinates,
 2) or as converting camera coordinates into world coordinates.
 
-After defining the camera's translation vector and the camera's 3x3 rotation matrix with columns like this, we often want to combine them in a single 4x4 homogeneous **pose matrix** $P$ (synoymously **cam-to-world matrix** $M_{\text{cam-to-world}}$) that can be easily premulitplied to incoming points.
+After defining the camera's translation vector and the camera's 3x3 rotation matrix with columns like this, we often want to combine them in a single 4x4 homogeneous **pose matrix** $P$ (synonymously **cam-to-world matrix**** $M_{\text{cam-to-world}}$) that can be easily premultiplied to incoming points.
 
 We have at least two ways of obtaining $M_{\text{cam-to-world}}$.
 
@@ -288,9 +287,9 @@ This linguistic convention serves as a reminder that corresponding geometric ope
 You can always imagine a point to the right to make sense of this.
 
 ### Alternative 1: Pre-multiplying the cam-to-world rotation and translation in the correct order
-Imagine a camera in the origin and a point 5 meter in front of it.
-Imagine the new camera is rotated to the left and also moved 1 meter to the left (hovering above your sholder).
-To transform the point ahead to also be ahead to the camera, we _first_ need to rotate, and _then_ translate it.
+Imagine a camera in the origin and a point 5 meters in front of it.
+Imagine the new camera is rotated to the left and also moved 1 meter to the left (hovering above your shoulder).
+To transform the point ahead to also be ahead of the camera, we _first_ need to rotate, and _then_ translate it.
 
 To do so,
 - first, compose the homogeneous translation matrix, i.e., take an identity matrix of 4x4, then plug in the translation $t$ into the last column's top three values (yielding $T_{\text{cam-to-world}}$)
@@ -303,7 +302,7 @@ $P=M_{\text{cam-to-world}} = T_{\text{cam-to-world}} \cdot R_{\text{cam-to-world
 
 ### Alternative 2: Plugging together the pose matrix directly
 Alternatively, we can also plug the pose matrix together from the camera position and cam-to-world rotation directly.
-Simply initialize an identity matrix `(M = np.identity(4)`), 
+Simply initialize an identity matrix (`M = np.identity(4)`), 
 plug in the 3x3 cam-to-world rotation into the first three columns and top three rows (`M[:3,:3] = r`), 
 and then the 3x1 translation vector (`M[:3,3] = t`) into the last column. 
 
@@ -318,7 +317,7 @@ R_{3\times3}&t_{3\times1}\\
 $$
 {{< /rawhtml >}}
 
-Note that we can easily read-out the camera position from the pose matrix (hence, the name).
+Note that we can easily read out the camera position from the pose matrix (hence, the name).
 
 These two alternatives produce the same result which we call **pose matrix** or **cam-to-world matrix**, i.e.,
 
@@ -333,7 +332,7 @@ This is why it is extensively used in computer graphics where we need to get 3D 
 
 It can also be understood as moving the camera together with all its surrounding points in world coordinates to the origin _while always remaining in the world coordinate system_.
 
-Again, there is multiple ways of obtaining it.
+Again, there are multiple ways of obtaining it.
 
 ### Alternative 1: Inverting the cam-to-world matrix (synonymously: inverting the pose matrix)
 
@@ -345,11 +344,10 @@ To this end, we invert the pose matrix using something like Python's `np.linalg.
 
 
 ### Alternative 2: Pre-multiplying the inverses of the cam-to-world rotation and cam-to-world translation in the correct order
-
-The above alterantive 1 inverts the 4x4 matrix numerically.
+The above alternative 1 inverts the 4x4 matrix numerically.
 If we want to avoid this, we can instead reduce the problem to simpler inversions of the underlying rotation and translation matrices.
 
-To this end, we first start with plugging the basics from above together: 
+To this end, we first start by plugging the basics from above together: 
 
 $E=M_{\text{world-to-cam}} = (M_{\text{cam-to-world}})^{-1} = (T_{\text{cam-to-world}} \cdot R_{\text{cam-to-world}})^{-1}$
 
@@ -357,7 +355,7 @@ Then, we can exploit the fact that the inverse of a product of two invertible ma
 
 $E=M_{\text{world-to-cam}} = R_{\text{cam-to-world}}^{-1} \cdot T_{\text{cam-to-world}}^{-1}$
 
-Inverting the rotation matrix and the translation matrix is much very simple as
+Inverting the rotation matrix and the translation matrix is very simple as
 - inverting a rotation matrix is taking its transpose, 
 - inverting a translation matrix is flipping all signs in the last-column top-three elements.
 
@@ -375,7 +373,7 @@ $$
 
 The top left 3x3 slice contains $R_{\text{world-to-cam}}$ which is the inverted $R_{\text{cam-to-world}}$ matrix. 
 Remember that $R^T=R^{-1}$, so a valid rotation matrix is easy to invert.
-The last 3x1 column is obtained as $t^*=-R_{\text{world-to-cam}}t$, where $t$ is the camera's position in world.
+The last 3x1 column is obtained as $t^*=-R_{\text{world-to-cam}}t$, where $t$ is the camera's position in world coordinates.
 The bottom 1x4 row contains the homogeneous appendix $(0., 0., 0., 1.)$.
 
 Beware, too many times, I have tried to plug in the sign-swapped translation vector directly here, forgetting to premultiply $R_{\text{world-to-cam}}$.
@@ -394,8 +392,8 @@ To summarize, we distinguish between the following matrices:
 
 **Table: different matrices involved in computer vision and computer graphics**
 
-The intrisics matrix contains the measured properties of the camera and can used to project 3D points onto the image plane.
-The projection matrix can additionally take care for far-near clipping and viewport clipping.
+The intrinsics matrix contains the measured properties of the camera and can used to project 3D points onto the image plane.
+The projection matrix can additionally take care of far-near clipping and viewport clipping.
 Thus, while the intrinsics matrix contains only information relating to the camera properties, the projection matrix also contains information about the rendering chosen arbitrarily.
 
 In this post, we take particular interest in the pose matrix and the extrinsics matrix, which can obtained as follows:
@@ -408,8 +406,8 @@ $$E=P^{-1}=M_{\text{world-to-cam}}= R_{\text{cam-to-world}}^{-1} \cdot T_{\text{
 
 {{< /rawhtml >}}
 
-It always important to think about which "cam transform convention" the framework one is working with follows.
-Sometimes, the camera position and rotation is indicated via a pose matrix, sometimes as an extrinsics matrix.
+It is always important to think about which "cam transform convention" the framework one is working with follows.
+Sometimes, the camera position and rotation are indicated via a pose matrix, at other times they are represented as an extrinsics matrix.
 
 For example, In ARKit, `frame.camera.transform.columns` refers to a camera pose matrix, not an extrinsics matrix.
 
@@ -419,10 +417,10 @@ For example, In ARKit, `frame.camera.transform.columns` refers to a camera pose 
 | openGL                         | world-to-camera              | no                                           |
 
 To summarize, one good approach is to first obtain the pose matrix (cam-to-world matrix) and then the extrinsics matrix (world-to-camera matrix), as follows:
-1) derive the rotation that maps each camera basis vectors to the directions provided by the world coordinate frame,
+1) derive the rotation that maps each camera basis vector to a direction provided by the world coordinate frame,
 2) derive the translation that moves the world origin onto the camera coordinate,
 3) then rotate and afterwards translate ($T' R' \times p$) to obtain the cam-to-world matrix,
-4) finally invert the whole thing to obtain world-to-cam matrix.
+4) finally, invert the whole thing to obtain the world-to-cam matrix.
 
 **Table: cam transform convention**
 
@@ -434,8 +432,8 @@ To summarize, one good approach is to first obtain the pose matrix (cam-to-world
 
 ### Definition
 A matrix is a rotation matrix if and only if 
-1) $R$ is an orthormal matrix, i.e., 
-    -  $R$ is orthogonal (i.e., the matrix' inverse is equal to its tranpose $R^{-1}=R^T$), and
+1) $R$ is an orthonormal matrix, i.e., 
+    -  $R$ is orthogonal (i.e., the matrix inverse is equal to its transpose $R^{-1}=R^T$), and
     -  each row vector of $R$ has length 1,
 2) $R$ has determinant +1. 
 
@@ -455,20 +453,20 @@ assert np.all(np.linalg.det(R) == 1)
 assert np.all(R.T == np.linalg.inv(R))
 ```
 
-### Further properties
-Rotation matrices can be, but are not necessarily symmetric, i.e., $R = R^{T}$ does generally not hold.
+### Non-Symmetry
+Rotation matrices can be but are not necessarily symmetric, i.e., $R = R^{T}$ does generally not hold.
 
 ### Interesting implication of orthonormality
-Orthonormality is equivalent to the property that the row vectors form an orthonomal basis. 
-This is equivalent to the property that the columns vector form an orthonormal basis (https://en.wikipedia.org/wiki/Orthogonal_matrix#Matrix_properties). 
+Orthonormality is equivalent to the property that the row vectors form an orthonormal basis. 
+This is [equivalent to the property that the columns vector form an orthonormal basis](https://en.wikipedia.org/wiki/Orthogonal_matrix#Matrix_properties). 
 As an interesting side effect of the orthonormality property, the rotation matrix contains redundancy as we only need two base vectors, i.e. two rows, i.e., two columns, to compute the third vector as the cross product of the two given vectors. 
 
 ### Interesting implication of $det(R) = +1$
-An orthonormal matrix could have determinant -1 or +1 (https://en.wikipedia.org/wiki/Orthogonal_matrix), be a rotation matrix is  orthonormal matrix with $det(R)=+1$  (https://en.wikipedia.org/wiki/Orthogonal_group, https://en.wikipedia.org/wiki/3D_rotation_group#Orthogonal_and_rotation_matrices).
+[An orthonormal matrix could have determinant -1 or +1](https://en.wikipedia.org/wiki/Orthogonal_matrix), but [a rotation matrix is an orthonormal matrix with $det(R)=+1$](https://en.wikipedia.org/wiki/Orthogonal_group, https://en.wikipedia.org/wiki/3D_rotation_group#Orthogonal_and_rotation_matrices).
 
 An axis sign flip cannot be represented by a _proper_ rotation matrix. 
 Flipping a sign in a rotation matrix with 3 positive or negative ones will flip the determinant.
-So, to convert from a right-hand coordinate system to a left-hand coordinate system, we have to put first align two the three axes, and then flip the remaining one. 
+So, to convert from a right-hand coordinate system to a left-hand coordinate system, we have to first align two axes and then flip the remaining one. 
 
 ## Properties of translations
 
@@ -510,8 +508,8 @@ assert not np.all(R @ T == M)
 
 ###  $R \times T = (T^{-1} \times R^{-1})^{-1}$
 
-Too many times, I doubted myself because I was violating the $TRS\times p$ rule: first scale, then rotate, finally translate.
-However, as described above when computing the extrinsics matrix from the pose matrix in alterantive, we are in need to first translate and only then rotate some of the matrices we are looking at.
+Too many times, I doubted myself because I was violating the $TRS\times p$ rule: first scale, then rotate, and finally translate.
+However, as described above when computing the extrinsics matrix from the pose matrix as an alternative, we are in need to first translate and only then rotate some of the matrices we are looking at.
 
 This follows from the following rule: 
 Given two invertible matrices, the inverse of their product is the product of their inverses in reverse order (https://en.wikipedia.org/wiki/Invertible_matrix#Other_properties):
@@ -570,7 +568,7 @@ Are we looking at a global or local coordinate axis?
 For example, the camera coordinate system's y-axis might drop to the world coordinate system's x-axis during a rotation or convention transform, so be sure to be consistent about this.
 
 ## Step 2: Specifying a convention transform
-A change in convention can be representation by a 3x3 or 4x4 convention transform.
+A change in convention can be represented by a 3x3 or 4x4 convention transform.
 If the handedness does not change between conventions, the convention transform is a proper rotation matrix.
 If handedness changes, the convention transforms determinant becomes negative, making it what is sometimes called an improper rotation matrix.
 
@@ -579,13 +577,13 @@ Instead, simply need to ask ourselves how to define the convention transform.
 
 Imagine you get coordinates in NED (x forward, y right, z down) and want to map them to Unity (x right, y up, z forward).
 
-My recipe is as follow:
-1) Draw the camera perspectives on paper with the source coordinate convention (here: NED) on the left and target (here: Unity) on the right.
-2) Iterate over the the left (i.e., source) axes and ask yourself: Which target unit do I get for my source unit. That's basically what conversion is, right? For each axes, note the answer in a colum, filling up from left to right.
-3) Once done, you have 3 colums, making up an orthonormal matrix with determinant 1 (i.e., a rotation matrix), or an orthonormal matrix with determinant -1 (because handedness flipped).
+My recipe is as follows:
+1) Draw the camera perspectives on paper with the source coordinate convention (here: NED) on the left and the target (here: Unity) on the right.
+2) Iterate over the left (i.e., source) axes and ask yourself: Which target unit do I get for my source unit? That's basically what conversion is, right? For each axis, note the answer in a column, filling up from left to right.
+3) Once done, you have 3 columns, making up an orthonormal matrix with determinant 1 (i.e., a rotation matrix), or an orthonormal matrix with determinant -1 (because handedness flipped).
 
-## Step 3: Point conversion
-In order to convert incoming points from the source coordinate frame, pre-multiply the convention transform matrix to your incoming source points.
+## Step 3: Point conversions
+To convert incoming points from the source coordinate frame, pre-multiply the convention transform matrix to your incoming source points.
 
 ## Step 4: Rotation conversion
 Converting rotations is a bit more intricate again.
@@ -596,16 +594,16 @@ Rotation matrices (as defined above), Euler angles, or quaternions.
 Imagine, we obtain tracking data from ARKit (x right, y up, z backward) and want to visualize it in a 3D rendering engine that uses an NED convention (x forward, y right, z down). 
 I chose this conversion example, because all axes are different, making it easier to spot sign errors.
 
-The example is visualized end-to-end in the next figure and verbalized afterwards in 3 steps.
+The example is visualized end-to-end in the next figure and verbalized afterward in 3 steps.
 
 ![Visualization of the idea and process of a rotation matrix conversion](rotation-conversion.png)
 
 {{< rawhtml >}}
 Consider the initial state where the phone is aligned with the ARKit world coordinate system. 
-Imagine a physically mounted plastic frustrum extending forward as well as two physically mounted coordinate frames, one in the ARKit convention and one in the NED convention, all glued to the phone.
+Imagine a physically mounted plastic frustum extending forward as well as two physically mounted coordinate frames, one in the ARKit convention and one in the NED convention, all glued to the phone.
 In this initial state in ARKit, the phone's rotation matrix as tracked by ARKit is equal to the identity. 
-Considering the ARKit coordinate frame, the tip of the z-axis lies at $(0,0,1)_\text{ARKit}$ in ARKit convention, facing backward and  the jabbing the user into the eye.
-Considering the NED coordinate frame, the tip of the x-axis extend forward $(1,0,0)_\text{ARKit}$. 
+Considering the ARKit coordinate frame, the tip of the z-axis lies at $(0,0,1)_\text{ARKit}$ in ARKit convention, facing backward and jabbing the user into the eye.
+Considering the NED coordinate frame, the tip of the x-axis extends forward $(1,0,0)_\text{ARKit}$. 
 {{< /rawhtml >}}
 
 #### Sub-Step A: Obtaining the convention transform from source to target
@@ -642,10 +640,10 @@ If we pre-multiply this convention transform $R_{\text{ARKit-to-NED}}$ with an i
 
 
 #### Sub-Step B: Understanding a rotation in the source coordinate system
-Remember, in a world-aligned initial pose, the ARKit iPhone neutrally rests in landscape mode, screen facing the user, selfie camera on the left side of phone, and USB-C/Lightning port to the right.
+Remember, in a world-aligned initial pose, the ARKit iPhone neutrally rests in landscape mode, the screen facing the user, the selfie camera on the left side of the phone, and the USB-C/Lightning port to the right.
 
-Rotating the phone 90 degrees counter-clockwise, so that the phone is in upside-down portrait mode afterwards, is a rotation around the z-axis in positive direction.
-Purely talking ARKit, the rotation from state 0 to state 1 is described by rotation matrix:
+Rotating the phone 90 degrees counter-clockwise, so that the phone is in upside-down portrait mode afterward, is a rotation around the z-axis in positive direction.
+Purely talking ARKit, the rotation from state 0 to state 1 is described by the following rotation matrix:
 
 {{< rawhtml >}}
 $$
@@ -658,8 +656,8 @@ R_{\text{ARKit}_0\text{-to-ARKit}_1}=
 $$
 {{< /rawhtml >}}
 
-Considering the NED frame, rotating the phone 90 degrees counter-clockwise, is a rotation around the x-axis by $-90$ degrees or $+270$ degrees. 
-Purely talking NED, the rotation from state 0 to state 1 is described by rotation matrix:
+Considering the NED frame, rotating the phone 90 degrees counter-clockwise is a rotation around the x-axis by $-90$ degrees or $+270$ degrees. 
+Purely talking NED, the rotation from state 0 to state 1 is described by the rotation matrix:
 
 {{< rawhtml >}}
 $$
@@ -673,8 +671,8 @@ $$
 {{< /rawhtml >}}
 
 However, this last rotation $R_{\text{NED}_0\text{-to-NED}_1}$, we do not have. 
-Instead, all we have in our ARKit-in-a-NED-3D-visualization-system is the hard-coded convention transform, and incoming ARKit rotation.
-The question becomes: How do we get convert the ARKit rotation matrix into a NED rotation matrix?
+Instead, all we have in our system is the hard-coded convention transform and incoming ARKit rotations.
+The question becomes: How do we convert the ARKit rotation matrix into a NED rotation matrix?
 
 #### Sub-Step C: Computing $R_{\text{NED}_0\text{-to-NED}_1}$
 We can't directly apply the incoming rotation matrix to the NED point, and we also cannot just pre-multiply the convention transform as we can with points.
@@ -750,14 +748,14 @@ assert np.all(R_ned_0_to_1 == R_arkit_to_ned @ R_arkit_0_to_1 @ R_arkit_to_ned.T
 So, in summary, to convert an incoming rotation matrix, we need to pre-multiply with the convention transform, and post-multiply with the inverted convention transform.
 
 ### Converting incoming Euler angles
-Euler angles, and their special cases of Tait-Byran angles are Davenport angles, are an annoyance in conversion due to two reasons:
+Euler angles, and their special cases of Tait-Byran angles and Davenport angles, are an annoyance in conversion due to two reasons:
 
 First, they introduce yet another convention. 
 In order to interpret three given Euler angles $\alpha, \beta, \gamma$ around $x, y$ and $z$, we need to know if they have been applied intrinsically or extrinsically, and in which order.
-For example, Unity uses Euler angle convention of _extrinsic zxy_ while DJI (and aviation quite often) uses Euler convention of intrinsic yaw-pitch-roll, i.e., _intrinsic zyx_.
+For example, Unity uses Euler angle convention of _extrinsic zxy_ while DJI (and aviation quite often) uses the Euler convention of intrinsic yaw-pitch-roll, i.e., _intrinsic zyx_.
 
 However, even worse than introducing the need for yet another convention, Euler angles are _discontinuous_, i.e., a small change such as a single degree in one axis can make all rotation angles jump abruptly.
-For DJI aircraft, the motion is physically so limited that we mostly don't notice these discontinuities, but in camera motions more generally, Euler angles can often lead to unexpected results (https://danceswithcode.net/engineeringnotes/rotations_in_3d/rotations_in_3d_part1.html)..
+For DJI aircraft, the motion is physically so limited that we mostly don't notice these discontinuities, but in camera motions more generally, Euler angles can often lead to [unexpected results](https://danceswithcode.net/engineeringnotes/rotations_in_3d/rotations_in_3d_part1.html)..
 
 Therefore, whenever receiving Euler angles, be sure to convert them to quaternions as soon as possible.
 To do so, one can intuitively use the axis-angle initialization for quaternions.
@@ -795,9 +793,9 @@ $
 
 
 # Conclusion
-As this post demonstrates, I have spent my fair share on transforms of all sorts and conventions.
-I come to the conclusion that _thinking through_ what actually goes on rather than randomly swapping signs and orders has proven more sustainable to me.
-This blog post and my associated coordinate frame conversion tool (https://mkari.de/coord-converter/) hope to help doing so. 
+As this post demonstrates, I have spent my fair share on transformations of all sorts and conventions.
+I come to the conclusion that _thinking through_ what goes on rather than randomly swapping signs and orders has proven more sustainable to me.
+This blog post and my associated coordinate frame conversion tool (https://mkari.de/coord-converter/) hope to help do so. 
 
 _____
 Typeset with Markdown Math in VSCode and with KaTeX in HTML.

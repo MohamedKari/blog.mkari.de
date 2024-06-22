@@ -10,6 +10,7 @@
         "docker-machine's",
         "doi",
         "entrypoint",
+        "extrinsics", 
         "gencode",
         "gpus",
         "grpcio",
@@ -32,6 +33,7 @@
         "productionized",
         "protobuf",
         "pyspark",
+        "rawhtml",
         "repos",
         "rsync",
         "runc",
@@ -42,5 +44,11 @@
         "tcp",
         "tfrecord",
         "yaml"
+    ],
+    "grammarly.selectors": [
+        {
+            "language": "markdown",
+            "scheme": "file"
+        }
     ]
 }
