@@ -106,6 +106,9 @@ Attending other department's talks (here: [Tomos Evans](https://hellenic.princet
 ![Hosting talks](campus-life/compressed/IMG_3592.jpg)
 Hosting talks (here: [Andreas Fender](https://www.princeton.edu/events/2024/talk-dr-andreas-fender-augmenting-space-and-time) on Augmenting Space & Time)
 
+![Presidential Postdoctoral Research Fellowship Photo Session (Sameer A. Khan/Fotobuddy)](campus-life/compressed/MoKari_102924_0014-crop.jpg)
+Presidential Postdoctoral Research Fellowship Photo Session (Sameer A. Khan/Fotobuddy)
+
 ![Campus (wild)life.](campus-life/compressed/IMG_3983.jpg)
 Campus (wild)life.
 

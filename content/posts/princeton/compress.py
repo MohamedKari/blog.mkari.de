@@ -17,9 +17,9 @@ def main():
     # Process each image
     from PIL import Image
     for img_path in image_files:
-        # Create compressed folder next to the image
-        compressed_dir = img_path.parent / 'compressed'
-        compressed_dir.mkdir(exist_ok=True)
+        # Create compressed folder next to .raw directory
+        compressed_dir = img_path.parent.parent / 'compressed'
+        compressed_dir.mkdir(parents=True, exist_ok=True)
         
         # Open image and get EXIF data
         img = Image.open(img_path)
