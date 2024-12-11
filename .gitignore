@@ -3,3 +3,5 @@ public
 hugo-bin/hugo_0.95.0_macOS-64bit/
 .DS_Store
 .hugo_build.lock
+.archive/
+.raw/
