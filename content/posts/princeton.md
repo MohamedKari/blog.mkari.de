@@ -5,6 +5,28 @@ date: 2024-12-10
 author: Mo Kari
 ---
 
+- [Work \& academic life](#work--academic-life)
+- [Campus and surroundings](#campus-and-surroundings)
+- [Campus life](#campus-life)
+- [Life in the US](#life-in-the-us)
+- [Meeting old friends...](#meeting-old-friends)
+- [...and making new friends](#and-making-new-friends)
+- [UIST '24 in Pittsburgh](#uist-24-in-pittsburgh)
+
+
+<style>
+video {
+  width: 100%;
+  height: auto;
+  margin-bottom: 0px;
+}
+p {
+  margin-top: 0px;
+}
+</style>
+
+
+
 # Work & academic life
 ![99% of the time](work/compressed/53A74BBA-4607-4C86-869D-B2DFFCF24959.jpg)
 99% of the time
@@ -100,6 +122,12 @@ Friend Center and Computer Science
 ![Princeton University Orchestra](campus-life/compressed/IMG_2830.jpg)
 Princeton University Orchestra
 
+<video controls>
+    <source src="campus-life/compressed/6b717d0e-8cd7-4cbf-b93d-c787719d85bc.mp4" type="video/mp4" />
+</video>
+<p>Princeton University Orchestra directed by Michael Pratt playing Tchaikovsky's Symphony No. 5 in E minor, I. Movement, in the Fall concert</p>
+
+
 ![Attending other department's talks](campus-life/compressed/IMG_3614.jpg)
 Attending other department's talks (here: [Tomos Evans](https://hellenic.princeton.edu/events/2024/lecture-tomos-evans-%E2%80%9Cadvocating-greece%E2%80%99s-liberation-seventeenth-century-john-milton-and)'s lecture with respondent Anthony Grafton)
 
@@ -111,6 +139,11 @@ Presidential Postdoctoral Research Fellowship Photo Session (Sameer A. Khan/Foto
 
 ![Campus (wild)life.](campus-life/compressed/IMG_3983.jpg)
 Campus (wild)life.
+
+<video controls autoplay muted>
+    <source src="campus-life/compressed/IMG_3915-trimmed.mp4" type="video/mp4" />
+</video>
+<p>Off-campus (wild)life</p>
 
 ![Faculty Salons](campus-life/compressed/16470CB8-DC2E-49F9-83FB-4EAF5B664E2B_1_105_c.jpg)
 Faculty Salons
