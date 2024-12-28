@@ -1,7 +1,8 @@
 baseURL = "https://mohamedkari.github.io/blog.mkari.de/"
 languageCode = "en-us"
 theme = "pickles"
-copyright = "&copy; Mohamed Kari&nbsp;•&nbsp;All rights reserved.&nbsp;•&nbsp;2020"
+copyright = "&copy; Mohamed Kari&nbsp;•&nbsp;All rights reserved.&nbsp;•&nbsp;2020-2024"
+paginate = 100
 
 [markup.goldmark.renderer]
 unsafe= true
